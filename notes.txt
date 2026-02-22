@@ -11,3 +11,9 @@ cors → frontend access
 morgan → logging
 
 =============================
+Hash ≠ Encryption
+Encryption ممكن تفكّه
+
+Hash مفيش رجوع منه
+
+====================
