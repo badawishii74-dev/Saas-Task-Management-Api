@@ -1,0 +1,13 @@
+packages and reasons :
+
+bcryptjs → تشفير الباسورد
+
+jsonwebtoken → JWT auth
+
+helmet → security headers
+
+cors → frontend access
+
+morgan → logging
+
+=============================
