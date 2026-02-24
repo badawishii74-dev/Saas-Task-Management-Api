@@ -37,3 +37,7 @@ mongoose.connect(process.env.MONGO_URI)
     .catch((err) => {
         console.error('Failed to connect to MongoDB', err);
     });
+
+// Global error handling middleware
+const errorHandler = require('./middlewares/errorMiddleware');
+app.use(errorHandler);
