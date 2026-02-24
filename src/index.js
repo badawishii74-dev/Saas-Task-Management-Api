@@ -9,10 +9,13 @@ const app = express();
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// virtual route for testing
-app.get('/', (req, res) => {
-    res.send('Welcome to the SaaS Task Management API! ya Islam');
-});
+// Import routes
+const authRoutes = require('./routes/authRoutes');
+
+// Use routes
+app.use('/api/auth', authRoutes);
+
+
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
