@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // register user
 exports.register = async (req, res) => {
@@ -17,10 +18,14 @@ exports.register = async (req, res) => {
         return res.status(400).json({ message: 'User already exists' });
     }
 
+    // generate token
+    const token = generateToken({ name, email, password });
+
     // Create new user
     const user = await User.create({ name, email, password });
 
-    res.status(201).json({ message: 'User registered successfully', user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    res.status(201).json({ message: 'User registered successfully', token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+
 }
 
 
@@ -48,5 +53,16 @@ exports.login = async (req, res) => {
         return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    res.status(200).json({ message: 'Login successful', user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    const token = generateToken(user);
+
+    res.status(200).json({ message: 'Login successful', token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+}
+
+
+const generateToken = (user) => {
+    return jwt.sign(
+        { id: user._id, name: user.name, email: user.email, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
 }
