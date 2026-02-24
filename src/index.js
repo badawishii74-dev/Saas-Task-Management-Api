@@ -13,9 +13,11 @@ app.use(express.json());
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
+const taskRoutes = require('./routes/taskRoutes');
 
 // Use routes
 app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
 
 app.get('/api/protected', protect, (req, res) => {
     res.status(200).json({ message: 'This is a protected route', user: req.user });
