@@ -19,7 +19,7 @@ exports.register = async (req, res) => {
     }
 
     // generate token
-    const token = generateToken({ name, email, password });
+    const token = generateAccessToken ({ name, email, password });
 
     // Create new user
     const user = await User.create({ name, email, password });
@@ -53,16 +53,25 @@ exports.login = async (req, res) => {
         return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    const token = generateToken(user);
+    const token = generateAccessToken (user);
+    const refreshToken = generateRefreshToken(user);
 
-    res.status(200).json({ message: 'Login successful', token });
+    res.status(200).json({ message: 'Login successful', token, refreshToken });
 }
 
 
-const generateToken = (user) => {
+const generateAccessToken  = (user) => {
     return jwt.sign(
         { id: user._id, name: user.name, email: user.email, role: user.role },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+}
+
+const generateRefreshToken  = (user) => {
+    return jwt.sign(
+        { id: user._id, name: user.name, email: user.email, role: user.role },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN }
     );
 }
