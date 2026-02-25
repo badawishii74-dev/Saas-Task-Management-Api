@@ -14,6 +14,8 @@ app.use(express.json());
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
+const teamRoutes = require('./routes/teamRoutes');
+
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -22,6 +24,7 @@ app.use('/api/tasks', taskRoutes);
 app.get('/api/protected', protect, (req, res) => {
     res.status(200).json({ message: 'This is a protected route', user: req.user });
 });
+app.use('/api/teams', teamRoutes);
 
 
 // Connect to MongoDB

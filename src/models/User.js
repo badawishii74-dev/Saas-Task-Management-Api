@@ -23,8 +23,12 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: ['user', 'leader', 'admin'],
         default: 'user'
+    },
+    team: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Team'
     }
 },
     { timestamps: true });
@@ -32,7 +36,7 @@ const userSchema = new mongoose.Schema({
 // Hash the password before saving the user
 userSchema.pre('save', async function () {
     // Only hash the password if it has been modified (or is new)
-    if (!this.isModified('password')) return ;
+    if (!this.isModified('password')) return;
     // Hash the password using bcrypt
     const salt = await bcrypt.genSalt(10);
     // Hash the password and replace the plain text password with the hashed one
