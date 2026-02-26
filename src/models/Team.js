@@ -21,3 +21,5 @@ const teamSchema = new moongose.Schema({
     }]
 },
     { timestamps: true });
+
+module.exports = moongose.model('Team', teamSchema);

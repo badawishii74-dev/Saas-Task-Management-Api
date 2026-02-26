@@ -6,26 +6,36 @@ const User = require('../models/User');
 // @access  Private (Leader or Admin)
 exports.createTeam = async (req, res) => {
     try {
-        const { name, description, leaderId } = req.body;
+        const { name, description, leader } = req.body;
+        console.log(req.body)
 
-        // Check if the leader exists and has the correct role
-        const leader = await User.findById(leaderId);
-        if (!leader || (leader.role !== 'leader' && leader.role !== 'admin')) {
-            return res.status(400).json({
+        // Only admin can create teams
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({
                 success: false,
-                message: 'Invalid leader or insufficient permissions'
+                message: 'Only admin can create teams'
             });
         }
+
+        // Check if the leader exists and has the correct role
+        const leaderUser = await User.findById(leader);
+        if (!leaderUser) {
+            return res.status(404).json({
+                success: false,
+                message: 'Leader user not found'
+            });
+        }
+
         // Create the team
         const team = await Team.create({
             name,
             description,
-            leader: leaderId,
-            members: [leaderId] // Add the leader as the first member of the team
+            leader: leader,
+            members: [leader] // Add the leader as the first member of the team
         })
 
         // Update the leader's team reference
-        await User.findByIdAndUpdate(leaderId, { team: team._id, role: 'leader' });
+        await User.findByIdAndUpdate(leader, { team: team._id, role: 'leader' });
         res.status(201).json({
             success: true,
             team

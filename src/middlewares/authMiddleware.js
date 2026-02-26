@@ -6,26 +6,29 @@ exports.protect = async (req, res, next) => {
     let token;
 
     // Check if the token is provided in the Authorization header
-    if(req.headers.authorization &&
+    if (req.headers.authorization &&
         req.headers.authorization.startsWith('Bearer')
     ) {
         token = req.headers.authorization.split(' ')[1];
     }
 
     // If no token is provided, return an error
-    if(!token) {
+    if (!token) {
         return res.status(401).json({ message: 'Not authorized, no token' });
     }
 
     // Verify the token
     try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log("TOKEN:", token);
+        console.log("SECRET:", process.env.JWT_SECRET);
 
-    // Attach the user to the request object
-    req.user = await User.findById(decoded.id).select('-password');
-    next();
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log("DECODED:", decoded);
+
+        req.user = await User.findById(decoded.id).select('-password');
+        next();
     } catch (err) {
-        console.error(err);
+        console.log("JWT ERROR:", err.message);
         res.status(401).json({ message: 'Not authorized, token failed' });
     }
 }

@@ -9,7 +9,12 @@ const { addMember } = require('../controllers/teamController');
 // @route   POST /api/teams
 // @desc    Create a new team
 // @access  Private (Leader or Admin)
-router.post('/', protect, authorizeRoles('leader', 'admin'), createTeam);
+router.post(
+  '/',
+  protect,
+  authorizeRoles('admin'),
+  createTeam
+);
 router.post('/add-member', protect, authorizeRoles('leader'), addMember);
 
 module.exports = router;
