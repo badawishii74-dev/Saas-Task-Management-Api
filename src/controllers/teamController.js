@@ -74,7 +74,7 @@ exports.addMember = async (req, res) => {
     }
 
     // Check if the user is already a member of the team
-    if (team.members.includes(userId)) {
+    if (team.members.some(member => member.toString() === userId)) {
         return res.status(400).json({ message: 'User already in team' });
     }
 
@@ -92,4 +92,243 @@ exports.addMember = async (req, res) => {
         team
     });
 
+}
+
+// get all teams
+exports.getAllTeams = async (req, res) => {
+    const teams = await Team.find().select('name description type');
+    res.json(teams);
+};
+
+// get team details
+exports.getTeamDetails = async (req, res) => {
+    try {
+        const team = await Team.findById(req.params.teamId)
+            .populate('leader', 'name email')
+            .populate('members', 'name email');
+
+        if (!team) {
+            return res.status(404).json({ message: 'Team not found' });
+        }
+
+        res.status(200).json({ team });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
+
+// requst to join a team
+exports.requestToJoin = async (req, res) => {
+    const team = await Team.findById(req.params.teamId);
+
+    if (!team) {
+        return res.status(404).json({
+            success: false,
+            message: 'Team not found'
+        });
+    }
+
+    // Check if the user is already a member of the team
+    if (team.members.includes(req.user._id)) {
+        return res.status(400).json({ message: 'You are already a member of this team' });
+    }
+
+    // Check if the user has already sent a join request  
+    if (team.joinRequests.includes(req.user._id)) {
+        return res.status(400).json({ message: 'You have already sent a join request to this team' });
+    }
+
+    // check if the team is private
+    if (team.type === 'private') {
+        team.joinRequests.push(req.user._id);
+        await team.save();
+        return res.status(200).json({
+            success: true,
+            message: 'Join request sent successfully',
+            team
+        });
+    }
+
+    // For public teams, add the user directly to the members
+    team.members.push(req.user._id);
+    await team.save();
+    // Update the user's team reference
+    await User.findByIdAndUpdate(req.user._id, { team: team._id });
+    res.status(200).json({
+        success: true,
+        message: 'You have joined the team successfully',
+        team
+    });
+
+}
+
+
+// accept or reject join request
+exports.handleJoinRequest = async (req, res) => {
+    const { userId, action } = req.body;
+
+    const team = await Team.findById(req.params.teamId);
+
+    if (!team) {
+        return res.status(404).json({
+            success: false,
+            message: 'Team not found'
+        });
+    }
+
+    if (team.leader.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+            success: false,
+            message: 'Only team leader can handle join requests'
+        });
+    }
+
+    // Check if the user has a pending join request
+    if (!team.joinRequests.some(request => request.toString() === userId)) {
+        return res.status(400).json({
+            success: false,
+            message: 'No join request from this user'
+        });
+    }
+
+    if (action === 'accept') {
+        // Add the user to the team members
+        team.members.push(userId);
+        await team.save();
+        // Update the user's team reference
+        await User.findByIdAndUpdate(userId, { team: team._id });
+        res.status(200).json({
+            success: true,
+            message: 'Join request accepted',
+            team
+        });
+    } else if (action === 'reject') {
+        // Remove the user from the join requests
+        team.joinRequests = team.joinRequests.filter(id => id.toString() !== userId);
+        await team.save();
+        res.status(200).json({
+            success: true,
+            message: 'Join request rejected',
+            team
+        });
+    }
+    else {
+        res.status(400).json({
+            success: false,
+            message: 'Invalid action'
+        });
+    }
+}
+
+
+// invite user to team
+exports.inviteUser = async (req, res) => {
+    const { userId } = req.body;
+    const team = await Team.findById(req.params.teamId);
+    if (!team) {
+        return res.status(404).json({
+            success: false,
+            message: 'Team not found'
+        });
+    }
+
+    if (team.leader.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+            success: false,
+            message: 'Only team leader can invite members'
+        });
+    }
+
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+        return res.status(404).json({
+            success: false,
+            message: 'User not found'
+        });
+    }
+
+    // Check if the user is already a member of the team
+    if (team.members.some(member => member.toString() === userId)) {
+        return res.status(400).json({ message: 'User already in team' });
+    }
+
+    // Add the user to the team's join requests
+    team.invitations.push(userId);
+    await team.save();
+
+    res.status(200).json({
+        success: true,
+        message: 'User invited to join the team',
+        team
+    });
+}
+
+
+// accept or reject team invitation
+exports.handleInvitation = async (req, res) => {
+    const { teamId } = req.params;
+    const { action } = req.body;
+    const team = await Team.findById(teamId);
+
+    if (!team) {
+        return res.status(404).json({
+            success: false,
+            message: 'Team not found'
+        });
+    }
+
+    // Check if the user has a pending invitation
+    if (!team.invitations.some(invite => invite.toString() === req.user._id.toString())) {
+        return res.status(400).json({
+            success: false,
+            message: 'No pending invitation for this user'
+        });
+    }
+
+    if (action === 'accept') {
+        // Add the user to the team members
+        team.members.push(req.user._id);
+        // Remove the user from invitations
+        team.invitations = team.invitations.filter(invite => invite.toString() !== req.user._id.toString());
+        await team.save();
+        // Update the user's team reference
+        await User.findByIdAndUpdate(req.user._id, { team: team._id });
+        res.status(200).json({
+            success: true,
+            message: 'Invitation accepted',
+            team
+        });
+    } else if (action === 'reject') {
+        // Remove the user from invitations
+        team.invitations = team.invitations.filter(invite => invite.toString() !== req.user._id.toString());
+        await team.save();
+        res.status(200).json({
+            success: true,
+            message: 'Invitation rejected',
+            team
+        });
+    } else {
+        res.status(400).json({
+            success: false,
+            message: 'Invalid action'
+        });
+    }
+}
+
+
+// get team members
+exports.getTeamMembers = async (req, res) => {
+    try {
+        const team = await Team.findById(req.params.teamId).populate('members', 'name email');
+        if (!team) {
+            return res.status(404).json({ message: 'Team not found' });
+        }
+        res.status(200).json({ members: team.members });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
 }

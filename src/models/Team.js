@@ -10,12 +10,25 @@ const teamSchema = new moongose.Schema({
         type: String,
         trim: true
     },
+    type: {
+        type: String,
+        enum: ['public', 'private'],
+        default: 'public'
+    },
     leader: {
         type: moongose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
     members: [{
+        type: moongose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    joinRequests: [{
+        type: moongose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    invitations: [{
         type: moongose.Schema.Types.ObjectId,
         ref: 'User'
     }]

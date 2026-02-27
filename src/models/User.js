@@ -26,10 +26,10 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'leader', 'admin'],
         default: 'user'
     },
-    team: {
+    team: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Team'
-    }
+    }]
 },
     { timestamps: true });
 

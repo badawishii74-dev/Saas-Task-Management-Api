@@ -10,6 +10,11 @@ const taskSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    type: {
+        type: String,
+        enum: ['personal', 'team'],
+        required: true
+    },
     status: {
         type: String,
         enum: ['pending', 'in progress', 'completed'],
@@ -19,7 +24,18 @@ const taskSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    team: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Team',
+        required: true
+    },
+    assignedTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     }
+
 },
     { timestamps: true });
 
