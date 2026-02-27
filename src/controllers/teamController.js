@@ -35,7 +35,14 @@ exports.createTeam = async (req, res) => {
         })
 
         // Update the leader's team reference
-        await User.findByIdAndUpdate(leader, { team: team._id, role: 'leader' });
+        await User.findByIdAndUpdate(
+            leader,
+            {
+                // push the team ID to the user's teams array and set the role to leader
+                $push: { teams: team._id },
+                role: 'leader'
+            }
+        );
         res.status(201).json({
             success: true,
             team
@@ -83,8 +90,8 @@ exports.addMember = async (req, res) => {
     await team.save();
 
     // Update the user's team reference
-    user.team = team._id;
-    await user.save();
+    // addToset prevents duplicate entries in the user's teams array
+    await User.findByIdAndUpdate(userId, { $addToSet: { teams: team._id } });
 
     res.status(200).json({
         success: true,
@@ -96,8 +103,21 @@ exports.addMember = async (req, res) => {
 
 // get all teams
 exports.getAllTeams = async (req, res) => {
-    const teams = await Team.find().select('name description type');
-    res.json(teams);
+    if (req.user.role === 'admin') {
+        // Admin can see all teams
+        const teams = await Team.find().populate('leader', 'name email').populate('members', 'name email');
+        return res.json(teams);
+    } else {
+        // Regular users can only see teams they are part of
+        const teams = await Team.find({
+            $or: [
+                { type: 'public' },
+                { members: req.user._id }
+            ]
+        }).populate('leader', 'name email').populate('members', 'name email');
+
+        return res.json(teams);
+    }
 };
 
 // get team details
@@ -154,8 +174,10 @@ exports.requestToJoin = async (req, res) => {
     // For public teams, add the user directly to the members
     team.members.push(req.user._id);
     await team.save();
+
     // Update the user's team reference
-    await User.findByIdAndUpdate(req.user._id, { team: team._id });
+    await User.findByIdAndUpdate(req.user._id, { $addToSet: { teams: team._id } });
+
     res.status(200).json({
         success: true,
         message: 'You have joined the team successfully',
@@ -197,14 +219,17 @@ exports.handleJoinRequest = async (req, res) => {
         // Add the user to the team members
         team.members.push(userId);
         await team.save();
+
         // Update the user's team reference
-        await User.findByIdAndUpdate(userId, { team: team._id });
+        await User.findByIdAndUpdate(userId, { $addToSet: { teams: team._id } });
+
         res.status(200).json({
             success: true,
             message: 'Join request accepted',
             team
         });
     } else if (action === 'reject') {
+
         // Remove the user from the join requests
         team.joinRequests = team.joinRequests.filter(id => id.toString() !== userId);
         await team.save();
@@ -294,8 +319,10 @@ exports.handleInvitation = async (req, res) => {
         // Remove the user from invitations
         team.invitations = team.invitations.filter(invite => invite.toString() !== req.user._id.toString());
         await team.save();
+
         // Update the user's team reference
-        await User.findByIdAndUpdate(req.user._id, { team: team._id });
+        await User.findByIdAndUpdate(req.user._id, { $addToSet: { teams: team._id } });
+
         res.status(200).json({
             success: true,
             message: 'Invitation accepted',
