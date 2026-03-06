@@ -17,20 +17,12 @@ app.use(express.json());
 const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const teamRoutes = require("./routes/teamRoutes");
-const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
 // Use routes
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
-app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
-
-app.get("/api/protected", protect, (req, res) => {
-  res
-    .status(200)
-    .json({ message: "This is a protected route", user: req.user });
-});
 app.use("/api/teams", teamRoutes);
 
 console.log("URI:", process.env.MONGO_URI);

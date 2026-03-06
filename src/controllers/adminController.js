@@ -219,3 +219,106 @@ exports.getAllTeamTasks = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// get all tasks by status (Admin only)
+exports.getTasksByStatus = async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Admin only ..!" });
+  }
+
+  try {
+    const tasks = await Task.find({
+      status: req.params.status,
+    })
+      .populate("createdBy", "name email")
+      .populate("assignedTo", "name email")
+      .populate("team", "name");
+    res.status(200).json({ success: true, tasks });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// update user info
+exports.updateUserInfo = async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Admin only ..!" });
+  }
+  try {
+    const user = await User.findById(req.params.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const { name, email, role } = req.body;
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (role) user.role = role;
+    await user.save();
+    res.status(200).json({
+      message: "User updated successfully",
+      user: { name: user.name, email: user.email, role: user.role },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// update task details
+exports.updateTask = async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Admin only ..!" });
+  }
+  try {
+    const task = await Task.findById(req.params.taskId).populate("team");
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const { name, description, status } = req.body;
+    if (name) task.title = name;
+    if (description) task.description = description;
+    if (status) task.status = status;
+
+    res.status(200).json({
+      message: "Task updated successfully",
+      task: {
+        title: task.title,
+        description: task.description,
+        status: task.status,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// update team details
+exports.updateTeam = async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Admin only ..!" });
+  }
+
+  try {
+    const team = await Team.findById(req.params.teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+    const { name, description } = req.body;
+    if (name) team.name = name;
+    if (description) team.description = description;
+    await team.save();
+    res.status(200).json({
+      message: "Team updated successfully",
+      team: { name: team.name, description: team.description },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
