@@ -17,3 +17,13 @@ Encryption ممكن تفكّه
 Hash مفيش رجوع منه
 
 ====================
+
+
+اي يوزر يقدر يعمل تيم ويكون هو الليدر 
+الادمن يعرض التيم والمستخدمين والتاسكات 
+===============================
+
+1️⃣ Admin dashboard (get all tasks / teams / users)
+2️⃣ Task comments + activity log
+3️⃣ Task deadlines & priority
+4️⃣ Notifications (task assigned / completed)
