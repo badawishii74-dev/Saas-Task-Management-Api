@@ -33,9 +33,9 @@ mongoose
     console.log("Connected to MongoDB");
     // Start the server after successful DB connection
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
+    // app.listen(PORT, () => {
+    //   console.log(`Server is running on port ${PORT}`);
+    // });
   })
   .catch((err) => {
     console.error("Failed to connect to MongoDB", err);
@@ -44,3 +44,5 @@ mongoose
 // Global error handling middleware
 const errorHandler = require("./middlewares/errorMiddleware");
 app.use(errorHandler);
+
+module.exports = app;
