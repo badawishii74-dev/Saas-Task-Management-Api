@@ -5,6 +5,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const { protect } = require("../middlewares/authMiddleware");
+const errorHandler = require("../middlewares/errorMiddleware");
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -42,7 +43,6 @@ mongoose
   });
 
 // Global error handling middleware
-const errorHandler = require("./middlewares/errorMiddleware");
 app.use(errorHandler);
 
 // module.exports = app;
