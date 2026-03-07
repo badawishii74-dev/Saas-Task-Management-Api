@@ -4,7 +4,7 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
-const { protect } = require("./middlewares/authMiddleware");
+const { protect } = require("../middlewares/authMiddleware");
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -14,10 +14,10 @@ const app = express();
 app.use(express.json());
 
 // Import routes
-const authRoutes = require("./routes/authRoutes");
-const taskRoutes = require("./routes/taskRoutes");
-const teamRoutes = require("./routes/teamRoutes");
-const adminRoutes = require("./routes/adminRoutes");
+const authRoutes = require("../routes/authRoutes");
+const taskRoutes = require("../routes/taskRoutes");
+const teamRoutes = require("../routes/teamRoutes");
+const adminRoutes = require("../routes/adminRoutes");
 
 // Use routes
 app.use("/api/auth", authRoutes);
