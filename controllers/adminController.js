@@ -322,3 +322,57 @@ exports.updateTeam = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// delete user
+exports.deleteUser = async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Admin only ..!" });
+  }
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    await user.remove();
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// delete task
+exports.deleteTask = async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Admin only ..!" });
+  }
+  try {
+    const task = await Task.findById(req.params.taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    await task.remove();
+    res.status(200).json({ message: "Task deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// delete team
+exports.deleteTeam = async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Admin only ..!" });
+  }
+  try {
+    const team = await Team.findById(req.params.teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+    await team.remove();
+    res.status(200).json({ message: "Team deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
