@@ -23,7 +23,7 @@ Hash مفيش رجوع منه
 الادمن يعرض التيم والمستخدمين والتاسكات 
 ===============================
 
-1️⃣ Admin dashboard (get all tasks / teams / users)
-2️⃣ Task comments + activity log
+1️⃣ Admin dashboard (get all tasks / teams / users) ==>> done
+2️⃣ Task comments + activity log ==>> running
 3️⃣ Task deadlines & priority
 4️⃣ Notifications (task assigned / completed)
