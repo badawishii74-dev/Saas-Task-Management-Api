@@ -49,6 +49,22 @@ exports.getDashboardStats = async (req, res) => {
       .populate("createdBy", "name")
       .select("title status type");
 
+    //today tasks
+    const todayCompleted = await Task.countDocuments({
+      status: "completed",
+      updatedAt: {
+        $gte: new Date(new Date().setHours(0, 0, 0, 0)), // start of today
+        $lt: new Date(new Date().setHours(23, 59, 59, 999)), // end of today
+      },
+    });
+
+    // top user
+    const topUser = await Task.aggregate([
+      { $group: { _id: "$assignedTo", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 1 },
+    ]);
+
     res.status(200).json({
       success: true,
       stats: {
