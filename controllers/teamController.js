@@ -1,5 +1,12 @@
 const Team = require("../models/Team");
 const User = require("../models/User");
+const {
+  notifyTeamInvite,
+  notifyJoinRequest,
+  notifyJoinRequestHandled,
+  notifyMemberAdded,
+  notifyMemberRemoved,
+} = require("../services/notificationService");
 
 // @desc    Create a new team
 // @route   POST /api/teams
@@ -7,11 +14,11 @@ const User = require("../models/User");
 exports.createTeam = async (req, res) => {
   try {
     const { name, description, type } = req.body;
-    
-    // Get the user ID from the authenticated user
-    const leaderId = req.user._id; 
 
-    
+    // Get the user ID from the authenticated user
+    const leaderId = req.user._id;
+
+
     const existingTeam = await Team.countDocuments({ leader: leaderId });
 
     if (existingTeam >= 3) {
@@ -80,6 +87,12 @@ exports.addMember = async (req, res) => {
   // Add the user to the team
   team.members.push(userId);
   await team.save();
+
+  await notifyMemberAdded({
+    team,
+    addedUserId: userId,
+    addedBy: req.user._id,
+  });
 
   // Update the user's team reference
   // addToset prevents duplicate entries in the user's teams array
@@ -159,6 +172,7 @@ exports.requestToJoin = async (req, res) => {
   if (team.type === "private") {
     team.joinRequests.push(req.user._id);
     await team.save();
+    await notifyJoinRequest({ team, requesterId: req.user._id });
     return res.status(200).json({
       success: true,
       message: "Join request sent successfully",
@@ -214,6 +228,7 @@ exports.handleJoinRequest = async (req, res) => {
     // Add the user to the team members
     team.members.push(userId);
     await team.save();
+    await notifyJoinRequestHandled({ team, userId, action });
 
     // Update the user's team reference
     await User.findByIdAndUpdate(userId, { $addToSet: { teams: team._id } });
@@ -229,6 +244,7 @@ exports.handleJoinRequest = async (req, res) => {
       (id) => id.toString() !== userId,
     );
     await team.save();
+    await notifyJoinRequestHandled({ team, userId, action });
     res.status(200).json({
       success: true,
       message: "Join request rejected",
@@ -277,6 +293,12 @@ exports.inviteUser = async (req, res) => {
   // Add the user to the team's join requests
   team.invitations.push(userId);
   await team.save();
+
+  await notifyTeamInvite({
+    team,
+    invitedUserId: userId,
+    invitedBy: req.user._id,
+  });
 
   res.status(200).json({
     success: true,
@@ -405,6 +427,11 @@ exports.removeMember = async (req, res) => {
   // Remove the user from the team members
   team.members = team.members.filter((member) => member.toString() !== userId);
   await team.save();
+  await notifyMemberRemoved({
+    team,
+    removedUserId: userId,
+    removedBy: req.user._id,
+  });
 
   // Update the user's team reference
   await User.findByIdAndUpdate(userId, { $pull: { teams: team._id } });
@@ -467,43 +494,43 @@ exports.leaveTeam = async (req, res) => {
 
 // assign new leader to team (only for admin)
 exports.assignNewLeader = async (req, res) => {
-    const { teamId } = req.params;
-    const { newLeaderId } = req.body;
+  const { teamId } = req.params;
+  const { newLeaderId } = req.body;
 
-    const team = await Team.findById(teamId);
+  const team = await Team.findById(teamId);
 
-    if (!team) {
-        return res.status(404).json({
-            success: false,
-            message: "Team not found",
-        });
-    }
-
-    if (req.user.role !== "admin") {
-        return res.status(403).json({
-            success: false,
-            message: "Only admin can assign a new leader",
-        });
-    }
-
-    // Check if the new leader is a member of the team
-    if (!team.members.some((member) => member.toString() === newLeaderId)) {
-        return res.status(400).json({
-            success: false,
-            message: "New leader must be a member of the team",
-        });
-    }
-
-    // Update the team leader
-    team.leader = newLeaderId;
-    await team.save();
-
-    // Update the new leader's role to leader
-    await User.findByIdAndUpdate(newLeaderId, { role: "leader" });
-
-    res.status(200).json({
-        success: true,
-        message: "New leader assigned successfully",
-        team,
+  if (!team) {
+    return res.status(404).json({
+      success: false,
+      message: "Team not found",
     });
+  }
+
+  if (req.user.role !== "admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Only admin can assign a new leader",
+    });
+  }
+
+  // Check if the new leader is a member of the team
+  if (!team.members.some((member) => member.toString() === newLeaderId)) {
+    return res.status(400).json({
+      success: false,
+      message: "New leader must be a member of the team",
+    });
+  }
+
+  // Update the team leader
+  team.leader = newLeaderId;
+  await team.save();
+
+  // Update the new leader's role to leader
+  await User.findByIdAndUpdate(newLeaderId, { role: "leader" });
+
+  res.status(200).json({
+    success: true,
+    message: "New leader assigned successfully",
+    team,
+  });
 };

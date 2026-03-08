@@ -1,5 +1,6 @@
 const Comment = require('../models/Comment');
 const Task = require('../models/Task');
+const { notifyCommentAdded } = require("../services/notificationService");
 
 // Create a new comment
 exports.createComment = async (req, res) => {
@@ -16,6 +17,8 @@ exports.createComment = async (req, res) => {
             user: req.user._id,
             text,
         });
+        await notifyCommentAdded({ task, commentBy: req.user._id });
+        
         res.status(201).json({message: "Comment created successfully", comment});
     }
     catch(error){

@@ -1,5 +1,11 @@
 const Task = require("../models/Task");
 const Team = require("../models/Team");
+const {
+  notifyTaskAssigned,
+  notifyTaskUpdated,
+  notifyTaskDeleted,
+  notifyTaskStatusChanged,
+} = require("../services/notificationService");
 
 // Create a new task
 exports.createTask = async (req, res) => {
@@ -26,6 +32,14 @@ exports.createTask = async (req, res) => {
         createdBy: req.user._id,
         assignedTo: assignedTo || null,
       });
+
+      if (assignedTo) {
+        await notifyTaskAssigned({
+          task,
+          assignedTo,
+          assignedBy: req.user._id,
+        });
+      }
 
       return res.status(201).json({
         success: true,
@@ -63,6 +77,14 @@ exports.createTask = async (req, res) => {
         createdBy: req.user._id,
         assignedTo: assignedTo || null,
       });
+
+      if (assignedTo) {
+        await notifyTaskAssigned({
+          task,
+          assignedTo,
+          assignedBy: req.user._id,
+        });
+      }
 
       return res.status(201).json({
         success: true,
@@ -149,6 +171,9 @@ exports.updateTask = async (req, res) => {
     task.dueDate = req.body.dueDate || task.dueDate;
 
     const updatedTask = await task.save();
+
+    await notifyTaskUpdated({ task: updatedTask, updatedBy: req.user._id });
+
     res
       .status(200)
       .json({ message: "Task updated successfully", task: updatedTask });
@@ -176,6 +201,12 @@ exports.updateTaskStatus = async (req, res) => {
     task.status = req.body.status || task.status;
 
     const updatedTask = await task.save();
+    await notifyTaskStatusChanged({
+      task: updatedTask,
+      changedBy: req.user._id,
+      newStatus,
+    });
+
     res
       .status(200)
       .json({ message: "Task status updated successfully", task: updatedTask });
@@ -205,7 +236,17 @@ exports.deleteTask = async (req, res) => {
         .json({ message: "Unauthorized to delete this task" });
     }
 
+    // capture before deleting
+    const taskTitle = task.title;
+    const assignedTo = task.assignedTo;
+
     await task.deleteOne();
+
+    await notifyTaskDeleted({
+      taskTitle,
+      assignedTo,
+      deletedBy: req.user._id,
+    });
 
     res
       .status(200)
