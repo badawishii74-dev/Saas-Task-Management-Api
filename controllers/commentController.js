@@ -1,4 +1,4 @@
-const Comment = require('../models/commentModel');
+const Comment = require('../models/Comment');
 const Task = require('../models/Task');
 
 // Create a new comment
