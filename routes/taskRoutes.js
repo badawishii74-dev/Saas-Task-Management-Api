@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { createTask, getTasks
     , getTaskById, updateTask, deleteTask, updateTaskStatus,
-    getOverdueTasks, filterTasks
+    overdueTasks, filterTasks
 } = require('../controllers/taskController');
 const { protect } = require('../middlewares/authMiddleware');
 
@@ -41,7 +41,7 @@ router.delete('/:id', protect, deleteTask);
 // @route   GET /api/tasks/overdue
 // @desc    Get all overdue tasks for the authenticated user
 // @access  Private
-router.get("/overdue", protect, getOverdueTasks);
+router.get("/overdue", protect, overdueTasks);
 
 // @route   GET /api/tasks/filter
 // @desc    Filter tasks by status, priority, or due date
