@@ -20,11 +20,13 @@ const taskRoutes = require("../routes/taskRoutes");
 const teamRoutes = require("../routes/teamRoutes");
 const adminRoutes = require("../routes/adminRoutes");
 const commentRoutes = require("../routes/CommentRoutes");
+const activityRoutes = require("../routes/activityRoutes");
 
 // Use routes
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/activities", activityRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/teams", teamRoutes);
 
