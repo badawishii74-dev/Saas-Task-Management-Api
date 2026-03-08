@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const { createTask, getTasks
-    , getTaskById, updateTask, deleteTask, updateTaskStatus
+    , getTaskById, updateTask, deleteTask, updateTaskStatus,
+    getOverdueTasks, filterTasks
 } = require('../controllers/taskController');
 const { protect } = require('../middlewares/authMiddleware');
 

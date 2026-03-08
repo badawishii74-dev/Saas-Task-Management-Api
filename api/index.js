@@ -4,7 +4,6 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
-const { protect } = require("../middlewares/authMiddleware");
 const errorHandler = require("../middlewares/errorMiddleware");
 
 dotenv.config(); // Load environment variables from .env file
