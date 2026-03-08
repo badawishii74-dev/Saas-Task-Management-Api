@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { createTask, getTasks
-    , getTaskById, updateTask, deleteTask,updateTaskStatus
+    , getTaskById, updateTask, deleteTask, updateTaskStatus
 } = require('../controllers/taskController');
 const { protect } = require('../middlewares/authMiddleware');
 
@@ -37,6 +37,15 @@ router.put('/:id/status', protect, updateTaskStatus);
 // @access  Private
 router.delete('/:id', protect, deleteTask);
 
+// @route   GET /api/tasks/overdue
+// @desc    Get all overdue tasks for the authenticated user
+// @access  Private
+router.get("/overdue", protect, getOverdueTasks);
+
+// @route   GET /api/tasks/filter
+// @desc    Filter tasks by status, priority, or due date
+// @access  Private
+router.get("/filter", protect, filterTasks);
 
 
 

@@ -24,6 +24,16 @@ Hash مفيش رجوع منه
 ===============================
 
 1️⃣ Admin dashboard (get all tasks / teams / users) ==>> done
-2️⃣ Task comments + activity log ==>> running
-3️⃣ Task deadlines & priority
+2️⃣ Task comments + activity log ==>> done
+3️⃣ Task deadlines & priority ==>> running ===>>
 4️⃣ Notifications (task assigned / completed)
+
+
+=====>>>>>>
+3️⃣ Task deadlines & priority :
+
+1️⃣ dueDate (موعد التسليم)
+2️⃣ priority (أولوية التاسك)
+3️⃣ overdue tasks (التاسكات المتأخرة)
+4️⃣ task filtering
+

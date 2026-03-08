@@ -4,7 +4,7 @@ const Team = require("../models/Team");
 // Create a new task
 exports.createTask = async (req, res) => {
   try {
-    const { title, description, type, teamId, assignedTo } = req.body;
+    const { title, description, type, teamId, assignedTo, priority, dueDate } = req.body;
 
     if (!title || !type) {
       return res.status(400).json({ message: "Title and type are required" });
@@ -21,6 +21,8 @@ exports.createTask = async (req, res) => {
         title,
         description,
         type,
+        priority,
+        dueDate,
         createdBy: req.user._id,
         assignedTo: assignedTo || null,
       });
@@ -56,6 +58,8 @@ exports.createTask = async (req, res) => {
         description,
         type,
         team: teamId,
+        priority,
+        dueDate,
         createdBy: req.user._id,
         assignedTo: assignedTo || null,
       });
@@ -141,6 +145,8 @@ exports.updateTask = async (req, res) => {
     task.title = req.body.title || task.title;
     task.description = req.body.description || task.description;
     task.status = req.body.status || task.status;
+    task.priority = req.body.priority || task.priority;
+    task.dueDate = req.body.dueDate || task.dueDate;
 
     const updatedTask = await task.save();
     res
@@ -204,6 +210,40 @@ exports.deleteTask = async (req, res) => {
     res
       .status(200)
       .json({ success: true, message: "Task deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// overdue tasks
+exports.overdueTasks = async (req, res) => {
+  try {
+    const tasks = await Task.find({
+      assignedTo: req.user._id,
+      dueDate: { $lt: new Date() },
+      status: { $ne: "completed" },
+    });
+    res.status(200).json({ success: true, tasks });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// filter tasks
+exports.filterTasks = async (req, res) => {
+  try {
+    const { status, priority, team } = req.query;
+    const filter = { assignedTo: req.user._id };
+
+    if (status) filter.status = status;
+    if (priority) filter.priority = priority;
+    if (team) filter.team = team;
+
+    const tasks = await Task.find(filter);
+
+    res.status(200).json({ success: true, tasks });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
