@@ -68,3 +68,304 @@ router.delete("/teams/:teamId", protect, deleteTeam);
 
 
 module.exports = router;
+
+/**
+ * @swagger
+ * tags:
+ *   name: Admin
+ *   description: Admin only endpoints
+ */
+
+/**
+ * @swagger
+ * /api/admin/dashboard:
+ *   get:
+ *     summary: Get dashboard stats
+ *     tags: [Admin]
+ *     responses:
+ *       200:
+ *         description: Dashboard statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 stats:
+ *                   type: object
+ *                   properties:
+ *                     totalUsers:  { type: integer, example: 10 }
+ *                     totalTasks:  { type: integer, example: 50 }
+ *                     totalTeams:  { type: integer, example: 5 }
+ *                 tasksStatus:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:   { type: string, example: completed }
+ *                       count: { type: integer, example: 20 }
+ *                 latestUsers:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *                 latestTasks:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Task'
+ *       403:
+ *         description: Admin only
+ */
+
+/**
+ * @swagger
+ * /api/admin/users:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Admin]
+ *     responses:
+ *       200:
+ *         description: List of all users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       403:
+ *         description: Admin only
+ */
+
+/**
+ * @swagger
+ * /api/admin/users/{userId}:
+ *   put:
+ *     summary: Update user info
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:  { type: string }
+ *               email: { type: string }
+ *               role:  { type: string, enum: [user, admin] }
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       404:
+ *         description: User not found
+ *
+ *   delete:
+ *     summary: Delete a user
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       404:
+ *         description: User not found
+ */
+
+/**
+ * @swagger
+ * /api/admin/users/{userId}/tasks:
+ *   get:
+ *     summary: Get all tasks assigned to a user
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of tasks assigned to the user
+ */
+
+/**
+ * @swagger
+ * /api/admin/users/{userId}/created-tasks:
+ *   get:
+ *     summary: Get all tasks created by a user
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of tasks created by the user
+ */
+
+/**
+ * @swagger
+ * /api/admin/teams:
+ *   get:
+ *     summary: Get all teams
+ *     tags: [Admin]
+ *     responses:
+ *       200:
+ *         description: List of all teams
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Team'
+ */
+
+/**
+ * @swagger
+ * /api/admin/teams/{teamId}:
+ *   put:
+ *     summary: Update team info
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: teamId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:        { type: string }
+ *               description: { type: string }
+ *     responses:
+ *       200:
+ *         description: Team updated successfully
+ *       404:
+ *         description: Team not found
+ *
+ *   delete:
+ *     summary: Delete a team
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: teamId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Team deleted successfully
+ *       404:
+ *         description: Team not found
+ */
+
+/**
+ * @swagger
+ * /api/admin/teams/{teamId}/tasks:
+ *   get:
+ *     summary: Get all tasks for a team
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: teamId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of tasks for the team
+ */
+
+/**
+ * @swagger
+ * /api/admin/tasks/personal:
+ *   get:
+ *     summary: Get all personal tasks
+ *     tags: [Admin]
+ *     responses:
+ *       200:
+ *         description: List of all personal tasks
+ */
+
+/**
+ * @swagger
+ * /api/admin/tasks/team:
+ *   get:
+ *     summary: Get all team tasks
+ *     tags: [Admin]
+ *     responses:
+ *       200:
+ *         description: List of all team tasks
+ */
+
+/**
+ * @swagger
+ * /api/admin/tasks/status/{status}:
+ *   get:
+ *     summary: Get tasks by status
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: status
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [pending, in progress, completed]
+ *     responses:
+ *       200:
+ *         description: List of tasks with the given status
+ */
+
+/**
+ * @swagger
+ * /api/admin/tasks/{taskId}:
+ *   put:
+ *     summary: Update a task
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: taskId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:        { type: string }
+ *               description: { type: string }
+ *               status:      { type: string, enum: [pending, in progress, completed] }
+ *     responses:
+ *       200:
+ *         description: Task updated successfully
+ *       404:
+ *         description: Task not found
+ *
+ *   delete:
+ *     summary: Delete a task
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: taskId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Task deleted successfully
+ *       404:
+ *         description: Task not found
+ */

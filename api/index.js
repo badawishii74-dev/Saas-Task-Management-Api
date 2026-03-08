@@ -8,6 +8,10 @@ const express = require("express");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const errorHandler = require("../middlewares/errorMiddleware");
+// imports at the top
+const swaggerUi   = require("swagger-ui-express");
+const swaggerSpec = require("../swagger/swaggerConfig");
+
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -24,6 +28,8 @@ const adminRoutes = require("../routes/adminRoutes");
 const commentRoutes = require("../routes/CommentRoutes");
 const activityRoutes = require("../routes/activityRoutes");
 const notificationRoutes = require("../routes/notificationRoutes");
+// Swagger UI setup
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Use routes
 app.use("/api/auth", authRoutes);
