@@ -47,9 +47,11 @@ exports.register = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: 'Failed to send verification email. Please try again.',
+            error: emailErr.message,
+            brevoError: emailErr.response?.data || null,   // ← shows exact Brevo error
         });
     }
-    res.status(201).json({ success: true, message: 'Registration successful. Please check your email for the OTP.', userId: user._id });
+res.status(201).json({ success: true, message: 'Registration successful. Please check your email for the OTP.', userId: user._id });
 
 }
 
