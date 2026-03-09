@@ -1,7 +1,4 @@
-const { TransactionalEmailsApi, SendSmtpEmail, ApiClient } = require('@getbrevo/brevo');
-
-const apiInstance = new TransactionalEmailsApi();
-apiInstance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
+const axios = require('axios');
 
 exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
     const isReset = type === 'reset';
@@ -14,8 +11,8 @@ exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
             </h2>
             <p style="color: #555; font-size: 15px;">
                 ${isReset
-            ? 'You requested to reset your password. Use the OTP below:'
-            : 'Thanks for registering! Please verify your email using the OTP below:'}
+                    ? 'You requested to reset your password. Use the OTP below:'
+                    : 'Thanks for registering! Please verify your email using the OTP below:'}
             </p>
             <div style="text-align: center; margin: 32px 0;">
                 <span style="font-size: 36px; font-weight: bold; letter-spacing: 8px;
@@ -34,17 +31,26 @@ exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
         </div>
     `;
 
-    const sendSmtpEmail = new SendSmtpEmail();
+    const response = await axios.post(
+        'https://api.brevo.com/v3/smtp/email',
+        {
+            sender: {
+                name:  process.env.BREVO_FROM_NAME || 'Task Manager',
+                email: process.env.BREVO_FROM,
+            },
+            to:          [{ email: to }],
+            subject,
+            htmlContent: html,
+        },
+        {
+            headers: {
+                'api-key':      process.env.BREVO_API_KEY,
+                'Content-Type': 'application/json',
+                'Accept':       'application/json',
+            },
+        }
+    );
 
-    sendSmtpEmail.sender = {
-        name: process.env.BREVO_FROM_NAME || 'Task Manager',
-        email: process.env.BREVO_FROM,
-    };
-    sendSmtpEmail.to = [{ email: to }];
-    sendSmtpEmail.subject = subject;
-    sendSmtpEmail.htmlContent = html;
-
-    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log('Email sent, messageId:', result.messageId);
-    return result;
+    console.log('Email sent via Brevo, messageId:', response.data.messageId);
+    return response.data;
 };
