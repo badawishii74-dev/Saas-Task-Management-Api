@@ -25,7 +25,20 @@ router.post('/reset-password', resetPassword);
 // Admin only
 router.post('/create-admin', protect, authorizeRoles('admin'), createAdmin);
 
-
+router.get('/test-email', async (req, res) => {
+    try {
+        const { sendOtpEmail } = require('../services/emailService');
+        await sendOtpEmail({
+            to: 'badawishii74@gmail.com', // ← put your real email here
+            subject: 'Brevo test',
+            otp: '123456',
+            type: 'verify',
+        });
+        res.json({ success: true, message: 'Email sent!' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 
 module.exports = router;
 
