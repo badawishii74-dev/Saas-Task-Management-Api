@@ -29,13 +29,14 @@ router.get('/test-email', async (req, res) => {
     try {
         const { sendOtpEmail } = require('../services/emailService');
         await sendOtpEmail({
-            to: 'badawishii74@gmail.com', // ← put your real email here
-            subject: 'Brevo test',
-            otp: '123456',
-            type: 'verify',
+            to:      'your_real_email@gmail.com', // ← your real email
+            subject: 'Brevo API test',
+            otp:     '123456',
+            type:    'verify',
         });
-        res.json({ success: true, message: 'Email sent!' });
+        res.json({ success: true, message: 'Email sent via Brevo API!' });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ success: false, error: err.message });
     }
 });

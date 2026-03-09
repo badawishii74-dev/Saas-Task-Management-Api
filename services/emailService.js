@@ -1,23 +1,9 @@
-const nodemailer = require('nodemailer');
+const Brevo = require('@getbrevo/brevo');
 
-const transporter = nodemailer.createTransport({
-    host: process.env.BREVO_HOST,
-    port: Number(process.env.BREVO_PORT),
-    secure: false, // true for 465, false for 587
-    auth: {
-        user: process.env.BREVO_USER,
-        pass: process.env.BREVO_PASS,
-    },
-});
+const client = Brevo.ApiClient.instance;
+client.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
 
-// Verify connection on startup
-transporter.verify((error) => {
-    if (error) {
-        console.error('Brevo SMTP connection failed:', error.message);
-    } else {
-        console.log('Brevo SMTP ready');
-    }
-});
+const transactionalApi = new Brevo.TransactionalEmailsApi();
 
 exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
     const isReset = type === 'reset';
@@ -50,10 +36,17 @@ exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
         </div>
     `;
 
-    await transporter.sendMail({
-        from: `"Task Manager" <${process.env.BREVO_FROM}>`,
-        to,
-        subject,
-        html,
-    });
+    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+
+    sendSmtpEmail.sender = {
+        name: process.env.BREVO_FROM_NAME || 'Task Manager',
+        email: process.env.BREVO_FROM,
+    };
+    sendSmtpEmail.to = [{ email: to }];
+    sendSmtpEmail.subject = subject;
+    sendSmtpEmail.htmlContent = html;
+
+    const result = await transactionalApi.sendTransacEmail(sendSmtpEmail);
+    console.log('Email sent via Brevo API, messageId:', result.messageId);
+    return result;
 };
