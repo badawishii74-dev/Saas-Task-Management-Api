@@ -34,21 +34,21 @@ exports.register = async (req, res) => {
     });
 
     // Try sending email — if it fails, delete the user and return clear error
-    // try {
-    //     await sendOtpEmail({
-    //         to: email,
-    //         subject: 'Verify your email – Task Manager',
-    //         otp,
-    //         type: 'verify',
-    //     });
-    // } catch (emailErr) {
-    //     await User.findByIdAndDelete(user._id);
-    //     console.error('Email sending failed:', emailErr.message);
-    //     return res.status(500).json({
-    //         success: false,
-    //         message: 'Failed to send verification email. Please try again.',
-    //     });
-    // }
+    try {
+        await sendOtpEmail({
+            to: email,
+            subject: 'Verify your email – Task Manager',
+            otp,
+            type: 'verify',
+        });
+    } catch (emailErr) {
+        await User.findByIdAndDelete(user._id);
+        console.error('Email sending failed:', emailErr.message);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to send verification email. Please try again.',
+        });
+    }
     res.status(201).json({ message: 'User registered successfully', token });
 
 }
