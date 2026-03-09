@@ -49,7 +49,7 @@ exports.register = async (req, res) => {
             message: 'Failed to send verification email. Please try again.',
         });
     }
-    res.status(201).json({ message: 'User registered successfully', token });
+    res.status(201).json({ success: true, message: 'Registration successful. Please check your email for the OTP.', userId: user._id });
 
 }
 
@@ -327,3 +327,18 @@ const generateRefreshToken = (user) => {
         { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN }
     );
 }
+
+router.get('/test-email', async (req, res) => {
+    try {
+        const { sendOtpEmail } = require('../services/emailService');
+        await sendOtpEmail({
+            to: 'badawishii74@gmail.com', // ← put your real email here
+            subject: 'Brevo test',
+            otp: '123456',
+            type: 'verify',
+        });
+        res.json({ success: true, message: 'Email sent!' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
