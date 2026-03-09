@@ -6,7 +6,7 @@ const { sendOtpEmail } = require('../services/emailService');
 
 // register user
 exports.register = async (req, res) => {
- const { name, email, password, mobile, gender } = req.body;
+    const { name, email, password, mobile, gender } = req.body;
 
     // Validate user input
     if (!name || !email || !password) {
@@ -141,32 +141,48 @@ exports.resendOtp = async (req, res) => {
 
 // login user
 exports.login = async (req, res) => {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    // Validate user input
-    if (!email || !password) {
-        return res.status(400).json({ message: 'Please provide email and password' });
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Please provide email and password' });
+        }
+
+        const user = await User.findOne({ email }).select('+password');
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid email or password' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid email or password' });
+        }
+
+        // Block login if email not verified
+        if (!user.isVerified) {
+            return res.status(403).json({
+                success: false,
+                message: 'Please verify your email before logging in',
+                userId: user._id,
+            });
+        }
+
+        const token = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+
+        res.status(200).json({
+            success: true,
+            message: 'Login successful',
+            token,
+            refreshToken,
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
     }
-
-    // Check if user exists
-    const user = await User.findOne({ email }).select('+password');
-
-    if (!user) {
-        return res.status(400).json({ message: 'Invalid email or password' });
-    }
-
-    // Check if password is correct
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-        return res.status(400).json({ message: 'Invalid email or password' });
-    }
-
-    const token = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-
-    res.status(200).json({ message: 'Login successful', token, refreshToken });
-}
+};
 
 
 exports.forgotPassword = async (req, res) => {
