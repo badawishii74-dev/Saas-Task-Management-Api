@@ -18,8 +18,8 @@ const {
 
 // @route   POST /api/teams
 // @desc    Create a new team
-// @access  Private (Leader or Admin)
-router.post("/", protect, authorizeRoles("admin"), createTeam);
+// @access  Private (Any user)
+router.post("/", protect, createTeam);
 router.post("/add-member", protect, authorizeRoles("admin"), addMember);
 router.get("/", protect, getAllTeams);
 router.get("/:teamId", protect, getTeamDetails);
@@ -27,14 +27,12 @@ router.post("/:teamId/request-to-join", protect, requestToJoin);
 router.post(
   "/:teamId/join-requests",
   protect,
-  authorizeRoles("leader"),
   handleJoinRequest,
 );
-router.post("/:teamId/invite", protect, authorizeRoles("leader"), inviteUser);
+router.post("/:teamId/invite", protect, inviteUser);
 router.get(
   "/:teamId/members",
   protect,
-  authorizeRoles("leader"),
   getTeamMembers,
 );
 router.post("/:teamId/invitations", protect, handleInvitation);

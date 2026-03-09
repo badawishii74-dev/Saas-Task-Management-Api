@@ -1,6 +1,23 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+    host: process.env.BREVO_HOST,
+    port: Number(process.env.BREVO_PORT),
+    secure: false, // true for 465, false for 587
+    auth: {
+        user: process.env.BREVO_USER,
+        pass: process.env.BREVO_PASS,
+    },
+});
+
+// Verify connection on startup
+transporter.verify((error) => {
+    if (error) {
+        console.error('Brevo SMTP connection failed:', error.message);
+    } else {
+        console.log('Brevo SMTP ready');
+    }
+});
 
 exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
     const isReset = type === 'reset';
@@ -33,15 +50,10 @@ exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
         </div>
     `;
 
-    const { error } = await resend.emails.send({
-        from: process.env.RESEND_FROM,
+    await transporter.sendMail({
+        from: `"Task Manager" <${process.env.BREVO_FROM}>`,
         to,
         subject,
         html,
     });
-
-    if (error) {
-        console.error('Resend error:', error);
-        throw new Error(error.message);
-    }
 };

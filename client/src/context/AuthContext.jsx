@@ -10,11 +10,15 @@ export const AuthProvider = ({ children }) => {
         if (token) {
             try {
                 const payload = JSON.parse(atob(token.split('.')[1]));
-                // Check expiry
                 if (payload.exp * 1000 < Date.now()) {
                     logout();
                 } else {
-                    setUser({ name: payload.name, email: payload.email, id: payload.id, role: payload.role });
+                    setUser({
+                        name: payload.name,
+                        email: payload.email,
+                        id: payload.id,
+                        role: payload.role,
+                    });
                 }
             } catch {
                 logout();
@@ -22,8 +26,10 @@ export const AuthProvider = ({ children }) => {
         }
     }, [token]);
 
-    const login = (tok) => {
+    // Accepts { token, refreshToken } from the login API response
+    const login = ({ token: tok, refreshToken }) => {
         localStorage.setItem('token', tok);
+        if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
         setToken(tok);
     };
 
