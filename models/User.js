@@ -26,10 +26,44 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
+    mobile: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    gender: {
+        type: String,
+        enum: ['male', 'female', 'other'],
+        default: null
+    },
     team: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Team'
-    }]
+    }],
+    
+    // ── Email verification ──────────────────────────────────────
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    otp: {
+        type: String,
+        select: false
+    },
+    otpExpiry: {
+        type: Date,
+        select: false
+    },
+
+    // ── Password reset ──────────────────────────────────────────
+    resetPasswordOtp: {
+        type: String,
+        select: false
+    },
+    resetPasswordOtpExpiry: {
+        type: Date,
+        select: false
+    },
 },
     { timestamps: true });
 
