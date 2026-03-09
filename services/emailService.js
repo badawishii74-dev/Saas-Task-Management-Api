@@ -1,16 +1,7 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-    },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-/**
- * Send an OTP email for verification or password reset
- */
 exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
     const isReset = type === 'reset';
 
@@ -22,8 +13,8 @@ exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
             </h2>
             <p style="color: #555; font-size: 15px;">
                 ${isReset
-                    ? 'You requested to reset your password. Use the OTP below:'
-                    : 'Thanks for registering! Please verify your email using the OTP below:'}
+            ? 'You requested to reset your password. Use the OTP below:'
+            : 'Thanks for registering! Please verify your email using the OTP below:'}
             </p>
             <div style="text-align: center; margin: 32px 0;">
                 <span style="font-size: 36px; font-weight: bold; letter-spacing: 8px;
@@ -42,10 +33,15 @@ exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
         </div>
     `;
 
-    await transporter.sendMail({
-        from: `"Task Manager" <${process.env.GMAIL_USER}>`,
+    const { error } = await resend.emails.send({
+        from: process.env.RESEND_FROM,
         to,
         subject,
         html,
     });
+
+    if (error) {
+        console.error('Resend error:', error);
+        throw new Error(error.message);
+    }
 };
