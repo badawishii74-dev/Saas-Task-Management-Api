@@ -1,9 +1,7 @@
-const Brevo = require('@getbrevo/brevo');
+const { TransactionalEmailsApi, SendSmtpEmail, ApiClient } = require('@getbrevo/brevo');
 
-const client = Brevo.ApiClient.instance;
-client.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-
-const transactionalApi = new Brevo.TransactionalEmailsApi();
+const apiInstance = new TransactionalEmailsApi();
+apiInstance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
 
 exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
     const isReset = type === 'reset';
@@ -36,7 +34,7 @@ exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
         </div>
     `;
 
-    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    const sendSmtpEmail = new SendSmtpEmail();
 
     sendSmtpEmail.sender = {
         name: process.env.BREVO_FROM_NAME || 'Task Manager',
@@ -46,7 +44,7 @@ exports.sendOtpEmail = async ({ to, subject, otp, type }) => {
     sendSmtpEmail.subject = subject;
     sendSmtpEmail.htmlContent = html;
 
-    const result = await transactionalApi.sendTransacEmail(sendSmtpEmail);
-    console.log('Email sent via Brevo API, messageId:', result.messageId);
+    const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log('Email sent, messageId:', result.messageId);
     return result;
 };
