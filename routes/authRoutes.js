@@ -49,14 +49,29 @@ module.exports = router;
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, email, password]
+ *             required:
+ *               - name
+ *               - email
+ *               - password
  *             properties:
- *               name:     { type: string, example: John Doe }
- *               email:    { type: string, example: john@example.com }
- *               password: { type: string, example: secret123 }
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               email:
+ *                 type: string
+ *                 example: john@example.com
+ *               password:
+ *                 type: string
+ *                 example: secret123
+ *               mobile:
+ *                 type: string
+ *                 example: "01012345678"
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female, other]
  *     responses:
  *       201:
- *         description: User registered successfully
+ *         description: Registration successful, OTP sent to email
  *       400:
  *         description: User already exists or missing fields
  */
