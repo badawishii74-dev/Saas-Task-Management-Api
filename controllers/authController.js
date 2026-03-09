@@ -6,7 +6,7 @@ const { sendOtpEmail } = require('../services/emailService');
 
 // register user
 exports.register = async (req, res) => {
-    const { name, email, password } = req.body;
+ const { name, email, password, mobile, gender } = req.body;
 
     // Validate user input
     if (!name || !email || !password) {
