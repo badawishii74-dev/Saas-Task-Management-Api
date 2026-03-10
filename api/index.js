@@ -9,7 +9,7 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const errorHandler = require("../middlewares/errorMiddleware");
 // imports at the top
-const swaggerUi   = require("swagger-ui-express");
+const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("../swagger/swaggerConfig");
 
 
@@ -19,6 +19,21 @@ const app = express();
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+
+const cors = require('cors');
+
+// CORS configuration
+app.use(cors({
+  origin: [
+    'http://localhost:5173',          // local React dev
+    'http://localhost:3000',          // local backend
+    'https://saas-task-management-api.onrender.com', // production backend
+    process.env.CLIENT_URL,           // any deployed frontend URL
+  ].filter(Boolean),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 // Import routes
 const authRoutes = require("../routes/authRoutes");
