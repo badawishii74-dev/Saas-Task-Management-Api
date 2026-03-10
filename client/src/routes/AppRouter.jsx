@@ -3,23 +3,23 @@ import { useAuth } from '../context/AuthContext';
 
 // Auth pages
 import Login from '../pages/auth/Login';
-import Register from '../pages/auth/Register';
+// import Register from '../pages/auth/Register';
 import VerifyOtp from '../pages/auth/VerifyOtp';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
 
 // App pages
-import Layout from '../components/layout/Layout';
-import Dashboard from '../pages/dashboard/Dashboard';
-import Tasks from '../pages/tasks/Tasks';
-import Teams from '../pages/teams/Teams';
-import Notifications from '../pages/notifications/Notifications';
+// import Layout from '../components/layout/Layout';
+// import Dashboard from '../pages/dashboard/Dashboard';
+// import Tasks from '../pages/tasks/Tasks';
+// import Teams from '../pages/teams/Teams';
+// import Notifications from '../pages/notifications/Notifications';
 
-// Admin pages
-import AdminDashboard from '../pages/admin/AdminDashboard';
-import AdminUsers from '../pages/admin/AdminUsers';
-import AdminTasks from '../pages/admin/AdminTasks';
-import AdminTeams from '../pages/admin/AdminTeams';
+// // Admin pages
+// import AdminDashboard from '../pages/admin/AdminDashboard';
+// import AdminUsers from '../pages/admin/AdminUsers';
+// import AdminTasks from '../pages/admin/AdminTasks';
+// import AdminTeams from '../pages/admin/AdminTeams';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -42,13 +42,13 @@ const AppRouter = () => (
         <Routes>
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            {/* <Route path="/register" element={<Register />} /> */}
             <Route path="/verify-otp" element={<VerifyOtp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Protected routes */}
-            <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            {/* <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
                 <Route index element={<Navigate to="/dashboard" />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="tasks" element={<Tasks />} />
@@ -57,16 +57,16 @@ const AppRouter = () => (
             </Route>
 
             {/* Admin routes */}
-            <Route path="/admin" element={<AdminRoute><Layout /></AdminRoute>}>
+            {/* <Route path="/admin" element={<AdminRoute><Layout /></AdminRoute>}>
                 <Route index element={<Navigate to="/admin/dashboard" />} />
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="tasks" element={<AdminTasks />} />
                 <Route path="teams" element={<AdminTeams />} />
-            </Route>
+            </Route> */}
 
             {/* Fallback */}
-            <Route path="*" element={<Navigate to="/dashboard" />} />
+            <Route path="*" element={<Navigate to="/dashboard" />} /> */}
         </Routes>
     </BrowserRouter>
 );
