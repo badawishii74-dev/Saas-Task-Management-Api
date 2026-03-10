@@ -7,13 +7,4 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  server: {
-    proxy: {
-      '/api': {
-        target: 'https://saas-task-management-api.onrender.com',
-        // target: 'http://localhost:3000',
-        changeOrigin: true,
-      },
-    },
-  },
 })
