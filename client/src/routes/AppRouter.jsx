@@ -9,8 +9,8 @@ import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
 
 // App pages
-// import Layout from '../components/layout/Layout';
-// import Dashboard from '../pages/dashboard/Dashboard';
+import Layout from '../components/layout/Layout';
+import Dashboard from '../pages/dashboard/Dashboard';
 // import Tasks from '../pages/tasks/Tasks';
 // import Teams from '../pages/teams/Teams';
 // import Notifications from '../pages/notifications/Notifications';
@@ -48,12 +48,13 @@ const AppRouter = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Protected routes */}
-            {/* <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-                <Route index element={<Navigate to="/dashboard" />} />
-                <Route path="dashboard" element={<Dashboard />} />
+             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}> 
+             <Route index element={<Navigate to="/dashboard" />} />
+             <Route path="dashboard" element={<Dashboard />} />
+                {/* 
                 <Route path="tasks" element={<Tasks />} />
                 <Route path="teams" element={<Teams />} />
-                <Route path="notifications" element={<Notifications />} />
+                <Route path="notifications" element={<Notifications />} /> */}
             </Route>
 
             {/* Admin routes */}
