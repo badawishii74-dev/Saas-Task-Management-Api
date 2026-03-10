@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 
 // Auth pages
 import Login from '../pages/auth/Login';
-// import Register from '../pages/auth/Register';
+import Register from '../pages/auth/Register';
 import VerifyOtp from '../pages/auth/VerifyOtp';
 import ForgotPassword from '../pages/auth/ForgotPassword';
 import ResetPassword from '../pages/auth/ResetPassword';
