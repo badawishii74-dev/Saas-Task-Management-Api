@@ -13,13 +13,13 @@ import Layout from '../components/layout/Layout';
 import Dashboard from '../pages/dashboard/Dashboard';
 import Tasks from '../pages/tasks/Tasks';
 import Teams from '../pages/teams/Teams';
-// import Notifications from '../pages/notifications/Notifications';
+import Notifications from '../pages/notifications/Notifications';
 
 // // Admin pages
-// import AdminDashboard from '../pages/admin/AdminDashboard';
-// import AdminUsers from '../pages/admin/AdminUsers';
-// import AdminTasks from '../pages/admin/AdminTasks';
-// import AdminTeams from '../pages/admin/AdminTeams';
+import AdminDashboard from '../pages/admin/AdminDashboard';
+import AdminUsers from '../pages/admin/AdminUsers';
+import AdminTasks from '../pages/admin/AdminTasks';
+import AdminTeams from '../pages/admin/AdminTeams';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -42,7 +42,7 @@ const AppRouter = () => (
         <Routes>
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
-            {/* <Route path="/register" element={<Register />} /> */}
+            <Route path="/register" element={<Register />} />
             <Route path="/verify-otp" element={<VerifyOtp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
@@ -53,18 +53,18 @@ const AppRouter = () => (
              <Route path="dashboard" element={<Dashboard />} />
              <Route path="tasks" element={<Tasks />} />
              <Route path="teams" element={<Teams />} />
-                {/* 
-                <Route path="notifications" element={<Notifications />} /> */}
+             <Route path="notifications" element={<Notifications />} /> 
+                
             </Route>
 
             {/* Admin routes */}
-            {/* <Route path="/admin" element={<AdminRoute><Layout /></AdminRoute>}>
+             <Route path="/admin" element={<AdminRoute><Layout /></AdminRoute>}>
                 <Route index element={<Navigate to="/admin/dashboard" />} />
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="tasks" element={<AdminTasks />} />
                 <Route path="teams" element={<AdminTeams />} />
-            </Route> */}
+            </Route> 
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/dashboard" />} /> 
