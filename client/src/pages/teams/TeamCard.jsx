@@ -5,10 +5,12 @@ import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
+import { useNavigate } from 'react-router-dom';
 
 export default function TeamCard({ team, onInvite }) {
     const { user } = useAuth();
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     const isLeader = team.leader?._id === user?.id;
     const isMember = team.members?.some((m) => m._id === user?.id);

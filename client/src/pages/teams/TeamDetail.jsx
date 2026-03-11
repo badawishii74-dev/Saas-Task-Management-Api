@@ -14,6 +14,7 @@ import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
+import UserSearchInput from '../../components/ui/UserSearchInput';
 
 export default function TeamDetail() {
     const { teamId } = useParams();
@@ -22,7 +23,7 @@ export default function TeamDetail() {
     const queryClient = useQueryClient();
 
     const [addMemberOpen, setAddMemberOpen] = useState(false);
-    const [addUserId, setAddUserId] = useState('');
+    const [selectedUser, setSelectedUser] = useState(null);
 
     // ── Fetch team details ────────────────────────────────────────────────
     const { data, isLoading } = useQuery({
@@ -41,11 +42,11 @@ export default function TeamDetail() {
 
     // ── Add member directly ───────────────────────────────────────────────
     const { mutate: addMember, isPending: adding } = useMutation({
-        mutationFn: () => api.post(`/teams/${teamId}/members`, { userId: addUserId }),
+        mutationFn: () => api.post(`/teams/${teamId}/members`, { userId: selectedUser._id }),
         onSuccess: () => {
             toast.success('Member added!');
             setAddMemberOpen(false);
-            setAddUserId('');
+            setSelectedUser(null);
             invalidate();
         },
         onError: (err) => toast.error(err.response?.data?.message || 'Failed to add member'),
@@ -315,32 +316,33 @@ export default function TeamDetail() {
             {/* Add Member Modal */}
             <Modal
                 open={addMemberOpen}
-                onClose={() => { setAddMemberOpen(false); setAddUserId(''); }}
-                title="Add Member Directly"
+                onClose={() => { setAddMemberOpen(false); setSelectedUser(null); }}
+                title="Add Member"
             >
                 <p className="text-slate-400 text-sm">
-                    Paste the user's ID to add them directly to the team without an invitation.
+                    Search and select a user to add them directly to the team.
                 </p>
-                <Input
-                    label="User ID"
-                    placeholder="64a1b2c3d4e5f6a7b8c9d0e1"
-                    value={addUserId}
-                    onChange={(e) => setAddUserId(e.target.value)}
+
+                <UserSearchInput
+                    onSelect={setSelectedUser}
+                    placeholder="Search by name or email..."
                 />
+
                 <div className="flex gap-3 pt-2">
                     <Button
                         variant="secondary"
-                        onClick={() => { setAddMemberOpen(false); setAddUserId(''); }}
+                        onClick={() => { setAddMemberOpen(false); setSelectedUser(null); }}
                         className="flex-1"
                     >
                         Cancel
                     </Button>
                     <Button
                         onClick={() => {
-                            if (!addUserId.trim()) return toast.error('User ID is required');
+                            if (!selectedUser) return toast.error('Please select a user');
                             addMember();
                         }}
                         loading={adding}
+                        disabled={!selectedUser}
                         className="flex-1"
                     >
                         Add Member

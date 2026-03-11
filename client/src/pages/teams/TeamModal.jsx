@@ -5,6 +5,8 @@ import api from '../../api/axios';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import UserSearchInput from '../../components/ui/UserSearchInput';
+
 
 // ── Create Team Modal ──────────────────────────────────────────────────────
 export function CreateTeamModal({ open, onClose }) {
@@ -70,40 +72,50 @@ export function CreateTeamModal({ open, onClose }) {
 }
 
 // ── Invite User Modal ──────────────────────────────────────────────────────
+import UserSearchInput from '../../components/ui/UserSearchInput';
+
 export function InviteModal({ open, onClose, team }) {
     const queryClient = useQueryClient();
-    const [email, setEmail] = useState('');
-    const [userId, setUserId] = useState('');
+    const [selectedUser, setSelectedUser] = useState(null);
 
-    // Search user by email — in real app you'd have a search endpoint
-    // For now we'll let the leader paste the userId directly
     const { mutate, isPending } = useMutation({
         mutationFn: (data) => api.post(`/teams/${team?._id}/invite`, data),
         onSuccess: () => {
             toast.success('Invitation sent!');
             queryClient.invalidateQueries({ queryKey: ['teams'] });
             onClose();
-            setUserId('');
+            setSelectedUser(null);
         },
         onError: (err) => toast.error(err.response?.data?.message || 'Failed to invite'),
     });
 
+    const handleClose = () => {
+        setSelectedUser(null);
+        onClose();
+    };
+
     return (
-        <Modal open={open} onClose={onClose} title={`Invite to ${team?.name}`}>
+        <Modal open={open} onClose={handleClose} title={`Invite to ${team?.name}`}>
             <p className="text-slate-400 text-sm">
-                Paste the user's ID to send them an invitation.
+                Search for a user by name or email to send them an invitation.
             </p>
-            <Input
-                label="User ID"
-                placeholder="64a1b2c3d4e5f6a7b8c9d0e1"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
+
+            <UserSearchInput
+                onSelect={setSelectedUser}
+                placeholder="Search by name or email..."
             />
+
             <div className="flex gap-3 pt-2">
-                <Button variant="secondary" onClick={onClose} className="flex-1">Cancel</Button>
+                <Button variant="secondary" onClick={handleClose} className="flex-1">
+                    Cancel
+                </Button>
                 <Button
-                    onClick={() => { if (!userId) return toast.error('User ID is required'); mutate({ userId }); }}
+                    onClick={() => {
+                        if (!selectedUser) return toast.error('Please select a user');
+                        mutate({ userId: selectedUser._id });
+                    }}
                     loading={isPending}
+                    disabled={!selectedUser}
                     className="flex-1"
                 >
                     Send Invite
@@ -112,7 +124,6 @@ export function InviteModal({ open, onClose, team }) {
         </Modal>
     );
 }
-
 // ── Handle Invitation Modal ────────────────────────────────────────────────
 export function PendingInvitationsModal({ open, onClose, teams }) {
     const queryClient = useQueryClient();

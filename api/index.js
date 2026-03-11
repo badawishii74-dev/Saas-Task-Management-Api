@@ -43,6 +43,7 @@ const adminRoutes = require("../routes/adminRoutes");
 const commentRoutes = require("../routes/CommentRoutes");
 const activityRoutes = require("../routes/activityRoutes");
 const notificationRoutes = require("../routes/notificationRoutes");
+const userRoutes = require('./routes/userRoutes');
 // Swagger UI setup
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -52,6 +53,7 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/activities", activityRoutes);
 app.use("/api/comments", commentRoutes);
+app.use('/api/users', userRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/notifications", notificationRoutes);
 
