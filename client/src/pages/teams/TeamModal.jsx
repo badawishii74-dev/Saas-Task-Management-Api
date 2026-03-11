@@ -72,7 +72,6 @@ export function CreateTeamModal({ open, onClose }) {
 }
 
 // ── Invite User Modal ──────────────────────────────────────────────────────
-import UserSearchInput from '../../components/ui/UserSearchInput';
 
 export function InviteModal({ open, onClose, team }) {
     const queryClient = useQueryClient();
