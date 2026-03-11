@@ -9,12 +9,15 @@ import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminUsers() {
     const queryClient = useQueryClient();
     const [search, setSearch] = useState('');
     const [editUser, setEditUser] = useState(null);
     const [form, setForm] = useState({ name: '', email: '', role: 'user' });
+    const navigate = useNavigate();
+
 
     const { data, isLoading } = useQuery({
         queryKey: ['admin-users'],
@@ -90,7 +93,11 @@ export default function AdminUsers() {
                             </thead>
                             <tbody className="divide-y divide-slate-700/30">
                                 {filtered.map((u) => (
-                                    <tr key={u._id} className="hover:bg-slate-700/20 transition-colors">
+                                    <tr
+                                        key={u._id}
+                                        onClick={() => navigate(`/admin/users/${u._id}`)}
+                                        className="hover:bg-slate-700/20 transition-colors cursor-pointer"
+                                    >
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-9 h-9 rounded-full bg-gradient-to-br

@@ -20,6 +20,8 @@ import AdminDashboard from '../pages/admin/AdminDashboard';
 import AdminUsers from '../pages/admin/AdminUsers';
 import AdminTasks from '../pages/admin/AdminTasks';
 import AdminTeams from '../pages/admin/AdminTeams';
+import AdminUserDetail from '../pages/admin/AdminUserDetail';
+import AdminTeamDetail from '../pages/admin/AdminTeamDetail';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -48,26 +50,28 @@ const AppRouter = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Protected routes */}
-             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}> 
-             <Route index element={<Navigate to="/dashboard" />} />
-             <Route path="dashboard" element={<Dashboard />} />
-             <Route path="tasks" element={<Tasks />} />
-             <Route path="teams" element={<Teams />} />
-             <Route path="notifications" element={<Notifications />} /> 
-                
+            <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+                <Route index element={<Navigate to="/dashboard" />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="tasks" element={<Tasks />} />
+                <Route path="teams" element={<Teams />} />
+                <Route path="notifications" element={<Notifications />} />
+
             </Route>
 
             {/* Admin routes */}
-             <Route path="/admin" element={<AdminRoute><Layout /></AdminRoute>}>
+            <Route path="/admin" element={<AdminRoute><Layout /></AdminRoute>}>
                 <Route index element={<Navigate to="/admin/dashboard" />} />
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="tasks" element={<AdminTasks />} />
                 <Route path="teams" element={<AdminTeams />} />
-            </Route> 
+                <Route path="users/:userId" element={<AdminUserDetail />} />
+                <Route path="teams/:teamId" element={<AdminTeamDetail />} />
+            </Route>
 
             {/* Fallback */}
-            <Route path="*" element={<Navigate to="/dashboard" />} /> 
+            <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
     </BrowserRouter>
 );
