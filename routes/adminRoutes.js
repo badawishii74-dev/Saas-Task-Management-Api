@@ -18,7 +18,8 @@ const {
     updateTeam,
     deleteUser,
     deleteTask,
-    deleteTeam
+    deleteTeam,
+    getAllTasks
 } = require("../controllers/adminController");
 
 // GET /api/admin/dashboard - Get dashboard stats (admin only)
@@ -29,6 +30,9 @@ router.get("/users", protect, getAllUsers);
 
 // GET /api/admin/teams - Get all teams (admin only)
 router.get("/teams", protect, getAllTeams);
+
+// GET /api/admin/tasks - Get all tasks (admin only)
+router.get("/tasks", protect, getAllTasks);
 
 // GET /api/admin/users/:userId/tasks - Get tasks assigned to a user (admin only)
 router.get("/users/:userId/tasks", protect, getUserTasks);
