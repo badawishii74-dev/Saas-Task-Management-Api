@@ -43,7 +43,7 @@ const adminRoutes = require("../routes/adminRoutes");
 const commentRoutes = require("../routes/CommentRoutes");
 const activityRoutes = require("../routes/activityRoutes");
 const notificationRoutes = require("../routes/notificationRoutes");
-const userRoutes = require('./routes/userRoutes');
+const userRoutes = require('../routes/userRoutes');
 // Swagger UI setup
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
