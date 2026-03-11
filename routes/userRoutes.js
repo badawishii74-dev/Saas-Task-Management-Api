@@ -1,4 +1,33 @@
-const { searchUsers } = require('../controllers/userController');
+const express = require('express');
+const router = express.Router();
+const { protect } = require('../middlewares/authMiddleware');
+const User = require('../models/User');
+
+// Search users by name or email
+const searchUsers = async (req, res) => {
+    try {
+        const { q } = req.query;
+
+        if (!q || q.trim().length < 2) {
+            return res.status(400).json({ message: 'Query must be at least 2 characters' });
+        }
+
+        const users = await User.find({
+            $or: [
+                { name: { $regex: q, $options: 'i' } },
+                { email: { $regex: q, $options: 'i' } },
+            ],
+            isVerified: true,
+        })
+            .select('_id name email')
+            .limit(10);
+
+        res.status(200).json({ users });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 
 // GET /api/users/search?q=john
 router.get('/search', protect, searchUsers);
@@ -11,15 +40,17 @@ module.exports = router;
  * /api/users/search:
  *   get:
  *     summary: Search users by name or email
+ *     tags: [Users]
  *     parameters:
  *       - in: query
  *         name: q
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
+ *         description: Search query (min 2 characters)
  *     responses:
  *       200:
- *         description: A list of users
+ *         description: List of matching users
  *         content:
  *           application/json:
  *             schema:
@@ -36,8 +67,8 @@ module.exports = router;
  *                         type: string
  *                       email:
  *                         type: string
- *      400:
- * `        description: Bad request (e.g. query too short)
- *       500:
- *         description: Server error
+ *       400:
+ *         description: Query too short
+ *       401:
+ *         description: Unauthorized
  */
