@@ -40,7 +40,10 @@ export default function TeamCard({ team, onInvite }) {
                         transition-all duration-200 flex flex-col gap-4">
 
             {/* Header */}
-            <div className="flex items-start justify-between gap-3">
+             <div
+                className="flex items-start justify-between gap-3 cursor-pointer"
+                onClick={() => navigate(`/teams/${team._id}`)}
+            >
                 <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500
                                     to-indigo-600 flex items-center justify-center flex-shrink-0

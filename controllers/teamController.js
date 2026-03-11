@@ -534,3 +534,22 @@ exports.assignNewLeader = async (req, res) => {
     team,
   });
 };
+
+// get team details
+exports.getTeamDetails = async (req, res) => {
+  try {
+    const team = await Team.findById(req.params.teamId)
+      .populate("leader", "name email")
+      .populate("members", "name email")
+      .populate("joinRequests", "name email");  // ← add this
+
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    res.status(200).json({ team });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

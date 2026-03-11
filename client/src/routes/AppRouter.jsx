@@ -13,6 +13,7 @@ import Layout from '../components/layout/Layout';
 import Dashboard from '../pages/dashboard/Dashboard';
 import Tasks from '../pages/tasks/Tasks';
 import Teams from '../pages/teams/Teams';
+import TeamDetail from '../pages/teams/TeamDetail';
 import Notifications from '../pages/notifications/Notifications';
 
 // // Admin pages
@@ -55,6 +56,7 @@ const AppRouter = () => (
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="tasks" element={<Tasks />} />
                 <Route path="teams" element={<Teams />} />
+                <Route path="/teams/:teamId" element={<TeamDetail />} />
                 <Route path="notifications" element={<Notifications />} />
 
             </Route>
