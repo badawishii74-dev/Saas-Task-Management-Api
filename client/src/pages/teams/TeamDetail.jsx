@@ -42,7 +42,7 @@ export default function TeamDetail() {
 
     // ── Add member directly ───────────────────────────────────────────────
     const { mutate: addMember, isPending: adding } = useMutation({
-        mutationFn: () => api.post(`/teams/${teamId}/members`, { userId: selectedUser._id }),
+        mutationFn: () => api.post(`/teams/add-member`, { userId: selectedUser._id }),
         onSuccess: () => {
             toast.success('Member added!');
             setAddMemberOpen(false);

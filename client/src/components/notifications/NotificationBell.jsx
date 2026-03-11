@@ -99,8 +99,9 @@ export default function NotificationBell() {
 
             {/* Dropdown */}
             {open && (
-                <div className="absolute right-0 top-12 w-80 bg-slate-800 border border-slate-700/50
-                                rounded-2xl shadow-2xl shadow-black/50 z-50 overflow-hidden">
+                <div className="absolute right-0 top-12 w-80 bg-slate-800 border border-slate-700/50 rounded-2xl shadow-2xl shadow-black/50 z-60 overflow-hidden" style={{
+                    zIndex: 55
+                }}>
                     {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
                         <h3 className="font-semibold text-white">Notifications</h3>
