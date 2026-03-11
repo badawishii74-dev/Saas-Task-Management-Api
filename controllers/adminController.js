@@ -299,6 +299,7 @@ exports.updateTask = async (req, res) => {
     if (name) task.title = name;
     if (description) task.description = description;
     if (status) task.status = status;
+    await task.save();
 
     res.status(200).json({
       message: "Task updated successfully",
@@ -349,7 +350,7 @@ exports.deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    await user.remove();
+    await User.findByIdAndDelete(req.params.userId);   // ← fix
     res.status(200).json({ message: "User deleted successfully" });
   } catch (err) {
     console.error(err);
@@ -367,7 +368,7 @@ exports.deleteTask = async (req, res) => {
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
-    await task.remove();
+    await Task.findByIdAndDelete(req.params.taskId);   // ← fix
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (err) {
     console.error(err);
@@ -385,7 +386,7 @@ exports.deleteTeam = async (req, res) => {
     if (!team) {
       return res.status(404).json({ message: "Team not found" });
     }
-    await team.remove();
+    await Team.findByIdAndDelete(req.params.teamId);   // ← fix
     res.status(200).json({ message: "Team deleted successfully" });
   } catch (err) {
     console.error(err);
