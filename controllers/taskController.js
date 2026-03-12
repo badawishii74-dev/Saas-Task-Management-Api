@@ -104,17 +104,22 @@ exports.createTask = async (req, res) => {
 // Get all tasks for the authenticated user
 exports.getTasks = async (req, res) => {
   try {
+    const userId = req.user._id;
+
     const tasks = await Task.find({
-      assignedTo: req.user._id,
+      $or: [
+        { assignedTo: userId },   // tasks assigned to user
+        { createdBy: userId },    // personal tasks created by user
+      ]
     })
-      .populate("createdBy", "name email")
-      .populate("team", "name")
-      .populate("assignedTo", "name email");
-      
+      .populate('createdBy', 'name email')
+      .populate('assignedTo', 'name email')
+      .populate('team', 'name');
+
     res.status(200).json({ success: true, tasks });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
@@ -207,7 +212,7 @@ exports.updateTaskStatus = async (req, res) => {
     await notifyTaskStatusChanged({
       task: updatedTask,
       changedBy: req.user._id,
-      newStatus,
+      newStatus: updatedTask.status,
     });
 
     res
