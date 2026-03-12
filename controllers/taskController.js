@@ -277,12 +277,16 @@ exports.overdueTasks = async (req, res) => {
     const tasks = await Task.find({
       assignedTo: req.user._id,
       dueDate: { $lt: new Date() },
-      status: { $ne: "completed" },
-    });
+      status: { $ne: 'completed' },
+    })
+      .populate('createdBy', 'name email')
+      .populate('assignedTo', 'name email')
+      .populate('team', 'name');
+
     res.status(200).json({ success: true, tasks });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error('overdueTasks error:', err.message); // ← check Render logs
+    res.status(500).json({ message: err.message });    // ← exposes real error
   }
 };
 

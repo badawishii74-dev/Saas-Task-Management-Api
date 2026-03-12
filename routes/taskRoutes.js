@@ -18,6 +18,11 @@ router.post('/', protect, createTask);
 // @access  Private
 router.get('/', protect, getTasks);
 
+// @route   GET /api/tasks/overdue
+// @desc    Get all overdue tasks for the authenticated user
+// @access  Private
+router.get("/overdue", protect, overdueTasks);
+
 // @route   GET /api/tasks/:id
 // @desc    Get a single task by ID
 // @access  Private
@@ -37,11 +42,6 @@ router.put('/:taskId/status', protect, updateTaskStatus);
 // @desc    Delete a task
 // @access  Private
 router.delete('/:id', protect, deleteTask);
-
-// @route   GET /api/tasks/overdue
-// @desc    Get all overdue tasks for the authenticated user
-// @access  Private
-router.get("/overdue", protect, overdueTasks);
 
 // @route   GET /api/tasks/filter
 // @desc    Filter tasks by status, priority, or due date
