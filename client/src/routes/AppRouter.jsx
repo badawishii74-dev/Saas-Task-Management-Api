@@ -23,6 +23,7 @@ import AdminTasks from '../pages/admin/AdminTasks';
 import AdminTeams from '../pages/admin/AdminTeams';
 import AdminUserDetail from '../pages/admin/AdminUserDetail';
 import AdminTeamDetail from '../pages/admin/AdminTeamDetail';
+import TaskDetail from '../pages/tasks/TaskDetail';
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -58,7 +59,7 @@ const AppRouter = () => (
                 <Route path="teams" element={<Teams />} />
                 <Route path="/teams/:teamId" element={<TeamDetail />} />
                 <Route path="notifications" element={<Notifications />} />
-
+                <Route path="/tasks/:taskId" element={<TaskDetail />} />
             </Route>
 
             {/* Admin routes */}

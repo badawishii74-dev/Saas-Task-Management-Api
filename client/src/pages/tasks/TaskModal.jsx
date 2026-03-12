@@ -5,10 +5,11 @@ import api from '../../api/axios';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import TaskComments from './TaskComments';
 
 export default function TaskModal({ open, onClose, task }) {
     const queryClient = useQueryClient();
-    const isEdit      = !!task;
+    const isEdit = !!task;
 
     const [form, setForm] = useState({
         title: '', description: '', type: 'personal',
@@ -19,15 +20,15 @@ export default function TaskModal({ open, onClose, task }) {
     useEffect(() => {
         if (task) {
             setForm({
-                title:       task.title       || '',
+                title: task.title || '',
                 description: task.description || '',
-                type:        task.type        || 'personal',
-                priority:    task.priority    || 'medium',
-                dueDate:     task.dueDate
+                type: task.type || 'personal',
+                priority: task.priority || 'medium',
+                dueDate: task.dueDate
                     ? new Date(task.dueDate).toISOString().split('T')[0]
                     : '',
-                teamId:      task.team?._id   || '',
-                assignedTo:  task.assignedTo?._id || '',
+                teamId: task.team?._id || '',
+                assignedTo: task.assignedTo?._id || '',
             });
         } else {
             setForm({
@@ -40,15 +41,15 @@ export default function TaskModal({ open, onClose, task }) {
     // Fetch teams for dropdown
     const { data: teams } = useQuery({
         queryKey: ['my-teams'],
-        queryFn:  () => api.get('/teams').then(r => r.data),
-        enabled:  open,
+        queryFn: () => api.get('/teams').then(r => r.data),
+        enabled: open,
     });
 
     // Fetch team members when a team is selected
     const { data: membersData } = useQuery({
         queryKey: ['team-members', form.teamId],
-        queryFn:  () => api.get(`/teams/${form.teamId}/members`).then(r => r.data),
-        enabled:  !!form.teamId && form.type === 'team',
+        queryFn: () => api.get(`/teams/${form.teamId}/members`).then(r => r.data),
+        enabled: !!form.teamId && form.type === 'team',
     });
 
     const members = membersData?.members || [];
@@ -159,6 +160,12 @@ export default function TaskModal({ open, onClose, task }) {
                     {isEdit ? 'Save Changes' : 'Create Task'}
                 </Button>
             </div>
+
+            {isEdit && (
+                <div className="border-t border-slate-700/50 pt-4 mt-2">
+                    <TaskComments taskId={task._id} />
+                </div>
+            )}
         </Modal>
     );
 }

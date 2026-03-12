@@ -3,8 +3,10 @@ import { Trash2, Pencil, Calendar, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../api/axios';
 import Badge from '../../components/ui/Badge';
+import { useNavigate } from 'react-router-dom';
 
 export default function TaskCard({ task, onEdit }) {
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
 
     const { mutate: deleteTask } = useMutation({
@@ -36,7 +38,12 @@ export default function TaskCard({ task, onEdit }) {
 
             {/* Top row */}
             <div className="flex items-start justify-between gap-2">
-                <h3 className="text-white font-medium leading-snug flex-1">{task.title}</h3>
+                <h3
+                    onClick={() => navigate(`/tasks/${task._id}`)}
+                    className="text-white font-medium leading-snug flex-1 cursor-pointer hover:text-indigo-400 transition-colors"
+                >
+                    {task.title}
+                </h3>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                         onClick={() => onEdit(task)}
