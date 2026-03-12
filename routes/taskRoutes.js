@@ -31,7 +31,7 @@ router.put('/:id', protect, updateTask);
 // @route   PUT /api/tasks/:id/status
 // @desc    Update a task status
 // @access  Private
-router.put('/:id/status', protect, updateTaskStatus);
+router.put('/:taskId/status', protect, updateTaskStatus);
 
 // @route   DELETE /api/tasks/:id
 // @desc    Delete a task
