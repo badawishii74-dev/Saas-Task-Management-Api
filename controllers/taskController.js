@@ -194,36 +194,42 @@ exports.updateTask = async (req, res) => {
 // update task status
 exports.updateTaskStatus = async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const { status } = req.body;
 
+    const validStatuses = ['pending', 'in progress', 'completed'];
+    if (!status || !validStatuses.includes(status)) {
+      return res.status(400).json({
+        message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
+      });
+    }
+
+    const task = await Task.findById(req.params.taskId);
     if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+      return res.status(404).json({ message: 'Task not found' });
     }
 
-    // Check if the task belongs to the authenticated user
-    if (task.assignedTo.toString() !== req.user._id.toString()) {
-      return res
-        .status(403)
-        .json({ message: "Unauthorized to update this task" });
-    }
-    task.status = req.body.status || task.status;
+    // Only assignedTo or createdBy or admin can update status
+    const isAssigned = task.assignedTo?.toString() === req.user._id.toString();
+    const isCreator = task.createdBy?.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
 
-    const updatedTask = await task.save();
-    await notifyTaskStatusChanged({
-      task: updatedTask,
-      changedBy: req.user._id,
-      newStatus: updatedTask.status,
+    if (!isAssigned && !isCreator && !isAdmin) {
+      return res.status(403).json({ message: 'Not authorized to update this task' });
+    }
+
+    task.status = status;
+    await task.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Task status updated',
+      task,
     });
-
-    res
-      .status(200)
-      .json({ message: "Task status updated successfully", task: updatedTask });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error('updateTaskStatus error:', err); // ← will show exact error in Render logs
+    res.status(500).json({ message: err.message || 'Server error' });
   }
 };
-
 // delete a task
 exports.deleteTask = async (req, res) => {
   try {
