@@ -41,3 +41,9 @@ Hash مفيش رجوع منه
 https://saas-task-management-api.onrender.com
 
 https://saas-task-management-api.onrender.com/api-docs/
+
+
+التاسكات مش بتظهر لليوزر اللي خدها 
+فيه حاجه مش مظبوطه 
+حالة التاسك مش موجوده في الايديت 
+الكومنتات م ظاهره لسه 

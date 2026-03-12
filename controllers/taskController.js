@@ -1,5 +1,6 @@
 const Task = require("../models/Task");
 const Team = require("../models/Team");
+const { populate } = require("../models/User");
 const {
   notifyTaskAssigned,
   notifyTaskUpdated,
@@ -107,7 +108,9 @@ exports.getTasks = async (req, res) => {
       assignedTo: req.user._id,
     })
       .populate("createdBy", "name email")
-      .populate("team", "name");
+      .populate("team", "name")
+      .populate("assignedTo", "name email");
+      
     res.status(200).json({ success: true, tasks });
   } catch (err) {
     console.error(err);
