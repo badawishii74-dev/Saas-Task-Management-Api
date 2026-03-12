@@ -27,6 +27,7 @@ app.use(cors({
   origin: [
     'http://localhost:5173',          // local React dev
     'http://localhost:3000',          // local backend
+    'https://saas-task-manager.netlify.app', // production frontend
     'https://saas-task-management-api.onrender.com', // production backend
     process.env.CLIENT_URL,           // any deployed frontend URL
   ].filter(Boolean),
