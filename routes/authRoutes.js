@@ -7,7 +7,8 @@ const { register,
     login,
     forgotPassword,
     resetPassword,
-    createAdmin, } = require('../controllers/authController');
+    createAdmin,
+    refreshToken, } = require('../controllers/authController');
 const { authorizeRoles } = require('../middlewares/roleMiddleware');
 const { protect } = require('../middlewares/authMiddleware');
 
@@ -18,6 +19,7 @@ router.post('/resend-otp', resendOtp);
 router.post('/login', login);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
+router.post('/refresh-token', refreshToken);
 
 // @route   POST /api/auth/create-admin
 // @desc    Create a new admin user

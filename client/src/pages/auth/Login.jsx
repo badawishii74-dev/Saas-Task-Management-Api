@@ -14,24 +14,24 @@ export default function Login() {
     const { login } = useAuth();
     const [form, setForm] = useState({ email: '', password: '' });
 
-    const { mutate, isPending } = useMutation({
-        mutationFn: (data) => api.post('/auth/login', data),
-        onSuccess: (res) => {
-            login(res.data.token);
-            toast.success('Welcome back!');
-            navigate('/dashboard');
-        },
-        onError: (err) => {
-            const msg = err.response?.data?.message;
-            // Not verified — redirect to verify OTP
-            if (err.response?.status === 403) {
-                toast.error('Please verify your email first');
-                navigate('/verify-otp', { state: { userId: err.response.data.userId } });
-                return;
-            }
+const { mutate, isPending } = useMutation({
+    mutationFn: (data) => api.post('/auth/login', data),
+    onSuccess: (res) => {
+        // Pass both token and refreshToken
+        login(res.data.token, res.data.refreshToken);
+        navigate('/dashboard');
+    },
+    onError: (err) => {
+        const msg = err.response?.data?.message;
+        if (err.response?.status === 403) {
+            navigate('/verify-otp', {
+                state: { userId: err.response.data.userId }
+            });
+        } else {
             toast.error(msg || 'Login failed');
-        },
-    });
+        }
+    },
+});
 
     const handleSubmit = (e) => {
         e.preventDefault();

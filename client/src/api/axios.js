@@ -1,24 +1,100 @@
 import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_API_URL;
-console.log('🔍 API URL:', baseURL);  // add this temporarily
+const api = axios.create({
+    baseURL: import.meta.env.VITE_API_URL,
+});
 
-const api = axios.create({ baseURL });
-
+// ── Request interceptor — attach access token ──────────────────────────
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
 });
 
-api.interceptors.response.use(
-    (res) => res,
-    (err) => {
-        if (err.response?.status === 401) {
-            localStorage.removeItem('token');
-            window.location.href = '/login';
+// ── Response interceptor — handle token refresh ────────────────────────
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
         }
-        return Promise.reject(err);
+    });
+    failedQueue = [];
+};
+
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+
+        // If 401 and we haven't retried yet
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            const refreshToken = localStorage.getItem('refreshToken');
+
+            // No refresh token — force logout
+            if (!refreshToken) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/login';
+                return Promise.reject(error);
+            }
+
+            // If already refreshing, queue the request
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                })
+                    .then((token) => {
+                        originalRequest.headers.Authorization = `Bearer ${token}`;
+                        return api(originalRequest);
+                    })
+                    .catch((err) => Promise.reject(err));
+            }
+
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            try {
+                const { data } = await axios.post(
+                    `${import.meta.env.VITE_API_URL}/auth/refresh-token`,
+                    { refreshToken }
+                );
+
+                const newToken = data.token;
+                const newRefreshToken = data.refreshToken;
+
+                // Save new tokens
+                localStorage.setItem('token', newToken);
+                localStorage.setItem('refreshToken', newRefreshToken);
+
+                // Update default header
+                api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+
+                processQueue(null, newToken);
+
+                // Retry original request with new token
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                return api(originalRequest);
+
+            } catch (refreshError) {
+                processQueue(refreshError, null);
+
+                // Refresh failed — force logout
+                localStorage.removeItem('token');
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/login';
+                return Promise.reject(refreshError);
+
+            } finally {
+                isRefreshing = false;
+            }
+        }
+
+        return Promise.reject(error);
     }
 );
 

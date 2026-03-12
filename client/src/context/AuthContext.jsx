@@ -1,47 +1,37 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import api from '../api/axios';
+import { createContext, useContext, useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            // Decode token to get user info (without verifying signature)
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                // Check token not expired
-                if (payload.exp * 1000 > Date.now()) {
-                    setUser(payload);
-                } else {
-                    localStorage.removeItem('token');
-                }
-            } catch {
-                localStorage.removeItem('token');
-            }
+export function AuthProvider({ children }) {
+    const getUser = () => {
+        try {
+            const token = localStorage.getItem('token');
+            return token ? jwtDecode(token) : null;
+        } catch {
+            return null;
         }
-        setLoading(false);
-    }, []);
+    };
 
-    const login = (token) => {
+    const [user, setUser] = useState(getUser);
+
+    const login = (token, refreshToken) => {
         localStorage.setItem('token', token);
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUser(payload);
+        localStorage.setItem('refreshToken', refreshToken);  // save refresh token
+        setUser(jwtDecode(token));
     };
 
     const logout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');  //  clear refresh token
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
-};
+}
 
 export const useAuth = () => useContext(AuthContext);

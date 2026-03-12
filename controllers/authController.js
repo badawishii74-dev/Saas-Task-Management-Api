@@ -51,7 +51,7 @@ exports.register = async (req, res) => {
             brevoError: emailErr.response?.data || null,   // ← shows exact Brevo error
         });
     }
-res.status(201).json({ success: true, message: 'Registration successful. Please check your email for the OTP.', userId: user._id });
+    res.status(201).json({ success: true, message: 'Registration successful. Please check your email for the OTP.', userId: user._id });
 
 }
 
@@ -313,6 +313,45 @@ exports.createAdmin = async (req, res) => {
     res.status(201).json({ message: 'Admin user created successfully', token });
 }
 
+
+exports.refreshToken = async (req, res) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+        return res.status(401).json({ message: 'Refresh token required' });
+    }
+
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
+        }
+
+        // Issue new access token
+        const newToken = jwt.sign(
+            { id: user._id, name: user.name, email: user.email, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
+        );
+
+        // Issue new refresh token (rotation — more secure)
+        const newRefreshToken = jwt.sign(
+            { id: user._id, name: user.name, email: user.email, role: user.role },
+            process.env.JWT_REFRESH_SECRET,
+            { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' }
+        );
+
+        res.status(200).json({
+            success: true,
+            token: newToken,
+            refreshToken: newRefreshToken,
+        });
+    } catch (err) {
+        return res.status(401).json({ message: 'Invalid or expired refresh token' });
+    }
+};
 
 const generateAccessToken = (user) => {
     return jwt.sign(
