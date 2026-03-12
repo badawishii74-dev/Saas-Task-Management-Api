@@ -1,55 +1,45 @@
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
 
-const { createTask, getTasks
-    , getTaskById, updateTask, deleteTask, updateTaskStatus,
-    overdueTasks, filterTasks
+const {
+    createTask,
+    getTasks,
+    getTaskById,
+    updateTask,
+    deleteTask,
+    updateTaskStatus,
+    overdueTasks,
+    filterTasks,
 } = require('../controllers/taskController');
 const { protect } = require('../middlewares/authMiddleware');
 
+// ── Static routes FIRST (before any /:param routes) ───────────────────────
 
-// @route   POST /api/tasks
-// @desc    Create a new task
-// @access  Private
+// POST /api/tasks
 router.post('/', protect, createTask);
 
-// @route   GET /api/tasks
-// @desc    Get all tasks for the authenticated user
-// @access  Private
+// GET /api/tasks
 router.get('/', protect, getTasks);
 
-// @route   GET /api/tasks/overdue
-// @desc    Get all overdue tasks for the authenticated user
-// @access  Private
-router.get("/overdue", protect, overdueTasks);
+// GET /api/tasks/overdue  ← MUST be before /:id
+router.get('/overdue', protect, overdueTasks);
 
-// @route   GET /api/tasks/:id
-// @desc    Get a single task by ID
-// @access  Private
+// GET /api/tasks/filter   ← MUST be before /:id
+router.get('/filter', protect, filterTasks);
+
+// ── Param routes AFTER static routes ──────────────────────────────────────
+
+// GET /api/tasks/:id
 router.get('/:id', protect, getTaskById);
 
-// @route   PUT /api/tasks/:id
-// @desc    Update a task status
-// @access  Private
+// PUT /api/tasks/:id
 router.put('/:id', protect, updateTask);
 
-// @route   PUT /api/tasks/:id/status
-// @desc    Update a task status
-// @access  Private
+// PUT /api/tasks/:id/status  ← MUST be after /:id PUT but uses different path
 router.put('/:taskId/status', protect, updateTaskStatus);
 
-// @route   DELETE /api/tasks/:id
-// @desc    Delete a task
-// @access  Private
+// DELETE /api/tasks/:id
 router.delete('/:id', protect, deleteTask);
-
-// @route   GET /api/tasks/filter
-// @desc    Filter tasks by status, priority, or due date
-// @access  Private
-router.get("/filter", protect, filterTasks);
-
-
-
 
 module.exports = router;
 
@@ -74,13 +64,24 @@ module.exports = router;
  *             type: object
  *             required: [title, type]
  *             properties:
- *               title:       { type: string, example: Fix login bug }
- *               description: { type: string }
- *               type:        { type: string, enum: [personal, team] }
- *               teamId:      { type: string }
- *               assignedTo:  { type: string }
- *               priority:    { type: string, enum: [low, medium, high] }
- *               dueDate:     { type: string, format: date-time }
+ *               title:
+ *                 type: string
+ *                 example: Fix login bug
+ *               description:
+ *                 type: string
+ *               type:
+ *                 type: string
+ *                 enum: [personal, team]
+ *               teamId:
+ *                 type: string
+ *               assignedTo:
+ *                 type: string
+ *               priority:
+ *                 type: string
+ *                 enum: [low, medium, high]
+ *               dueDate:
+ *                 type: string
+ *                 format: date-time
  *     responses:
  *       201:
  *         description: Task created successfully
@@ -92,7 +93,7 @@ module.exports = router;
  *         description: Validation error
  *
  *   get:
- *     summary: Get all tasks assigned to the authenticated user
+ *     summary: Get all tasks for the authenticated user
  *     tags: [Tasks]
  *     responses:
  *       200:
@@ -103,6 +104,54 @@ module.exports = router;
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Task'
+ */
+
+/**
+ * @swagger
+ * /api/tasks/overdue:
+ *   get:
+ *     summary: Get all overdue tasks for the authenticated user
+ *     tags: [Tasks]
+ *     responses:
+ *       200:
+ *         description: List of overdue tasks
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 tasks:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Task'
+ */
+
+/**
+ * @swagger
+ * /api/tasks/filter:
+ *   get:
+ *     summary: Filter tasks by status, priority or team
+ *     tags: [Tasks]
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [pending, in progress, completed]
+ *       - in: query
+ *         name: priority
+ *         schema:
+ *           type: string
+ *           enum: [low, medium, high]
+ *       - in: query
+ *         name: team
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Filtered tasks
  */
 
 /**
@@ -142,11 +191,19 @@ module.exports = router;
  *           schema:
  *             type: object
  *             properties:
- *               title:       { type: string }
- *               description: { type: string }
- *               status:      { type: string, enum: [pending, in progress, completed] }
- *               priority:    { type: string, enum: [low, medium, high] }
- *               dueDate:     { type: string, format: date-time }
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [pending, in progress, completed]
+ *               priority:
+ *                 type: string
+ *                 enum: [low, medium, high]
+ *               dueDate:
+ *                 type: string
+ *                 format: date-time
  *     responses:
  *       200:
  *         description: Task updated successfully
@@ -187,45 +244,10 @@ module.exports = router;
  *           schema:
  *             type: object
  *             properties:
- *               status: { type: string, enum: [pending, in progress, completed] }
+ *               status:
+ *                 type: string
+ *                 enum: [pending, in progress, completed]
  *     responses:
  *       200:
  *         description: Status updated successfully
- */
-
-/**
- * @swagger
- * /api/tasks/overdue:
- *   get:
- *     summary: Get all overdue tasks for the authenticated user
- *     tags: [Tasks]
- *     responses:
- *       200:
- *         description: List of overdue tasks
- */
-
-/**
- * @swagger
- * /api/tasks/filter:
- *   get:
- *     summary: Filter tasks by status, priority or team
- *     tags: [Tasks]
- *     parameters:
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *           enum: [pending, in progress, completed]
- *       - in: query
- *         name: priority
- *         schema:
- *           type: string
- *           enum: [low, medium, high]
- *       - in: query
- *         name: team
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Filtered tasks
  */
