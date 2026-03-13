@@ -4,6 +4,9 @@ import api from '../../api/axios';
 import Spinner from '../../components/ui/Spinner';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
+import ActivityFeed from '../activity/ActivityFeed';
+
+
 
 const StatCard = ({ icon: Icon, label, value, gradient }) => (
     <Card className="flex items-center gap-4">
@@ -146,6 +149,10 @@ export default function AdminDashboard() {
                         </tbody>
                     </table>
                 </div>
+            </Card>
+
+            <Card>
+                <ActivityFeed type="task"  limit={10} />
             </Card>
         </div>
     );

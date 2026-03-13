@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
     LayoutDashboard, CheckSquare, Users, Bell,
-    LogOut, Shield, ChevronLeft, ChevronRight
+    LogOut, Shield, ChevronLeft, ChevronRight, Activity
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -18,6 +18,7 @@ const adminItems = [
     { to: '/admin/users', icon: Users, label: 'Users' },
     { to: '/admin/tasks', icon: CheckSquare, label: 'All Tasks' },
     { to: '/admin/teams', icon: Users, label: 'All Teams' },
+    { to: '/activities', icon: Activity, label: 'Activities' },
 ];
 
 export default function Sidebar() {
