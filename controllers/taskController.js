@@ -132,23 +132,37 @@ exports.getTasks = async (req, res) => {
 // get a single task by ID
 exports.getTaskById = async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findById(req.params.id)
+      .populate('createdBy', 'name email')
+      .populate('assignedTo', 'name email')
+      .populate('team', 'name members leader');
 
     if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+      return res.status(404).json({ message: 'Task not found' });
     }
 
-    // Check if the task belongs to the authenticated user
-    if (task.assignedTo.toString() !== req.user._id.toString()) {
-      return res
-        .status(403)
-        .json({ message: "Unauthorized to access this task" });
+    const userId = req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    // Check access permission
+    const isAssigned = task.assignedTo?._id.toString() === userId;
+    const isCreator = task.createdBy?._id.toString() === userId;
+    const isTeamMember = task.team?.members?.some(
+      (m) => m.toString() === userId || m?._id?.toString() === userId
+    );
+    const isTeamLeader = task.team?.leader?.toString() === userId
+      || task.team?.leader?._id?.toString() === userId;
+
+    const hasAccess = isAdmin || isAssigned || isCreator || isTeamMember || isTeamLeader;
+
+    if (!hasAccess) {
+      return res.status(403).json({ message: 'Unauthorized to access this task' });
     }
 
     res.status(200).json({ success: true, task });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: err.message });
   }
 };
 
