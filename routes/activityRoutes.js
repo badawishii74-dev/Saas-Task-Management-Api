@@ -2,20 +2,20 @@ const express = require('express');
 const router = express.Router();
 
 const { protect } = require('../middlewares/authMiddleware');
+const {
+    getTaskActivity,
+    getTeamActivity,
+    getRecentActivities,
+} = require('../controllers/activityController');
 
-const { logActivity, getTaskActivity,getTeamActivity,getRecentActivities } = require('../controllers/activityController');
-
-// Get activities for a specific task
-router.get('/task/:taskId', protect, getTaskActivity);
-
-// Get activities for a specific user
-router.get('/user/:userId', protect, getTeamActivity);
-
-// Get recent activities for dashboard
+// GET /api/activities/recent
 router.get('/recent', protect, getRecentActivities);
 
-// Log activity (this would typically be called internally, not as an API endpoint)
-router.get('/', protect, logActivity);
+// GET /api/activities/task/:taskId
+router.get('/task/:taskId', protect, getTaskActivity);
+
+// GET /api/activities/team/:teamId  ← fixed: was /user/:userId but calls getTeamActivity
+router.get('/team/:teamId', protect, getTeamActivity);
 
 module.exports = router;
 
@@ -24,6 +24,28 @@ module.exports = router;
  * tags:
  *   name: Activities
  *   description: Activity feed
+ */
+
+/**
+ * @swagger
+ * /api/activities/recent:
+ *   get:
+ *     summary: Get recent activities for the dashboard (last 20)
+ *     tags: [Activities]
+ *     responses:
+ *       200:
+ *         description: List of recent activities
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 activities:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Activity'
  */
 
 /**
@@ -58,13 +80,13 @@ module.exports = router;
 
 /**
  * @swagger
- * /api/activities/user/{userId}:
+ * /api/activities/team/{teamId}:
  *   get:
  *     summary: Get activity feed for a specific team
  *     tags: [Activities]
  *     parameters:
  *       - in: path
- *         name: userId
+ *         name: teamId
  *         required: true
  *         schema:
  *           type: string
@@ -84,26 +106,4 @@ module.exports = router;
  *                     $ref: '#/components/schemas/Activity'
  *       404:
  *         description: Team not found
- */
-
-/**
- * @swagger
- * /api/activities/recent:
- *   get:
- *     summary: Get recent activities for the dashboard (last 20)
- *     tags: [Activities]
- *     responses:
- *       200:
- *         description: List of recent activities
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 activities:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Activity'
  */

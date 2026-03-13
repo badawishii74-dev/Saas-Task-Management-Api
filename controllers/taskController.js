@@ -8,6 +8,8 @@ const {
   notifyTaskStatusChanged,
 } = require("../services/notificationService");
 
+const { logActivity } = require("../controllers/activityController");
+
 // Create a new task
 exports.createTask = async (req, res) => {
   try {
@@ -33,6 +35,10 @@ exports.createTask = async (req, res) => {
         createdBy: req.user._id,
         assignedTo: assignedTo || null,
       });
+
+      //log activity
+      await logActivity(task._id, null, req.user._id, 'task_created', `Task "${task.title}" was created`);
+
 
       if (assignedTo) {
         await notifyTaskAssigned({
@@ -180,6 +186,9 @@ exports.updateTask = async (req, res) => {
 
     const updatedTask = await task.save();
 
+    //log activity
+    await logActivity(task._id, null, req.user._id, 'task_updated', `Task "${task.title}" was updated`);
+
     await notifyTaskUpdated({ task: updatedTask, updatedBy: req.user._id });
 
     res
@@ -220,6 +229,9 @@ exports.updateTaskStatus = async (req, res) => {
     task.status = status;
     await task.save();
 
+    //log activity
+    await logActivity(task._id, null, req.user._id, 'task_status_updated', `Task "${task.title}" status was updated to "${status}"`);
+
     res.status(200).json({
       success: true,
       message: 'Task status updated',
@@ -255,6 +267,9 @@ exports.deleteTask = async (req, res) => {
     const assignedTo = task.assignedTo;
 
     await task.deleteOne();
+
+    //log activity
+    await logActivity(task._id, null, req.user._id, 'task_deleted', `Task "${task.title}" was deleted`);
 
     await notifyTaskDeleted({
       taskTitle,

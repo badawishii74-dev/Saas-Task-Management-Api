@@ -8,6 +8,8 @@ const {
   notifyMemberRemoved,
 } = require("../services/notificationService");
 
+const { logActivity } = require("../controllers/activityController");
+
 // @desc    Create a new team
 // @route   POST /api/teams
 // @access  Private (Leader or Admin)
@@ -36,6 +38,9 @@ exports.createTeam = async (req, res) => {
       leader: leaderId,
       members: [leaderId], // Add the leader as the first member of the team
     });
+
+    //log activity
+    await logActivity(null, team._id, leaderId, 'team_created', `Team "${team.name}" was created`);
 
     // Update the leader's team reference
     await User.findByIdAndUpdate(leaderId, {
@@ -87,6 +92,9 @@ exports.addMember = async (req, res) => {
   // Add the user to the team
   team.members.push(userId);
   await team.save();
+
+  //log activity
+  await logActivity(null, team._id, req.user._id, 'member_added', `User "${user.name}" was added to the team`);
 
   await notifyMemberAdded({
     team,
@@ -184,6 +192,15 @@ exports.requestToJoin = async (req, res) => {
   team.members.push(req.user._id);
   await team.save();
 
+  //log activity
+  await logActivity(null, team._id, req.user._id, 'member_added', `User "${req.user.name}" joined the team`);
+
+  await notifyMemberAdded({
+    team,
+    addedUserId: req.user._id,
+    addedBy: req.user._id,
+  });
+
   // Update the user's team reference
   await User.findByIdAndUpdate(req.user._id, {
     $addToSet: { teams: team._id },
@@ -232,6 +249,9 @@ exports.handleJoinRequest = async (req, res) => {
 
     // Update the user's team reference
     await User.findByIdAndUpdate(userId, { $addToSet: { teams: team._id } });
+
+    //log activity
+    await logActivity(null, team._id, userId, 'member_added', `User "${user.name}" was added to the team`);
 
     res.status(200).json({
       success: true,
@@ -482,6 +502,9 @@ exports.leaveTeam = async (req, res) => {
   );
   await team.save();
 
+  //log activity
+  await logActivity(null, team._id, req.user._id, 'member_removed', `User "${req.user.name}" left the team`);
+
   // Update the user's team reference
   await User.findByIdAndUpdate(req.user._id, { $pull: { teams: team._id } });
 
@@ -527,6 +550,9 @@ exports.assignNewLeader = async (req, res) => {
 
   // Update the new leader's role to leader
   await User.findByIdAndUpdate(newLeaderId, { role: "leader" });
+
+  //log activity
+  await logActivity(null, team._id, newLeaderId, 'leader_assigned', `User "${team.leader.name}" was assigned as the new leader of the team`);
 
   res.status(200).json({
     success: true,

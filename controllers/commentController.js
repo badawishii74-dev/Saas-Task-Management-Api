@@ -1,6 +1,7 @@
 const Comment = require('../models/Comment');
 const Task = require('../models/Task');
 const { notifyCommentAdded } = require("../services/notificationService");
+const { logActivity } = require("../controllers/activityController");
 
 // Create a new comment
 exports.createComment = async (req, res) => {
@@ -18,7 +19,7 @@ exports.createComment = async (req, res) => {
             text,
         });
         await notifyCommentAdded({ task, commentBy: req.user._id });
-        
+        await logActivity(null, task._id, req.user._id, 'comment_added', `User "${req.user.name}" added a comment to the task`);
         res.status(201).json({message: "Comment created successfully", comment});
     }
     catch(error){
@@ -48,6 +49,7 @@ exports.deleteComment = async (req, res) => {
             return res.status(404).json({message: "Comment not found"});
         }
 
+        await logActivity(null, task._id, req.user._id, 'comment_deleted', `User "${req.user.name}" deleted a comment from the task`);
         await Comment.findByIdAndDelete(req.params.commentId);
         res.status(200).json({message: "Comment deleted successfully"});
     }
